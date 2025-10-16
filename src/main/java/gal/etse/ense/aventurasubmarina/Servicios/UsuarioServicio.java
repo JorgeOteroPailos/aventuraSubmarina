@@ -20,6 +20,8 @@ public class UsuarioServicio {
 
     public Usuario guardarUsuario(Usuario u){
         usuarioRepositorio.guardarUsuario(u);
+
+        u.setNombre(u.getNombre()+" el más guay");
         return u;
     }
 
