@@ -8,6 +8,12 @@ public class Jugador {
 
     private Partida partida;
 
+    private int posicion=0;
+
+    private int puntosGanados=0;
+
+    private int puntosCargando=0;
+
     private int color;
 
     public Jugador(Partida partida, Usuario usuario, int color){

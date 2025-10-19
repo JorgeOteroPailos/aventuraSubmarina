@@ -5,12 +5,18 @@ import java.util.List;
 
 public class Tablero {
 
-    private int tamano;
+    private int tamano=10;
 
-    private List<Casilla> casillas;
+    private int oxigeno=20;
+
+    private final List<Casilla> casillas;
 
     public Tablero(int tamano){
         this.tamano=tamano;
+        casillas=new ArrayList<>(tamano+10);
+    }
+
+    public Tablero(){
         casillas=new ArrayList<>(tamano+10);
     }
 }

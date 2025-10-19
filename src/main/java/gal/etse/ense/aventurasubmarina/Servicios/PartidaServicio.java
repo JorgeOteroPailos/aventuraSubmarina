@@ -11,16 +11,26 @@ import java.util.Map;
 @Service
 public class PartidaServicio {
 
-    private final Map partidasActivas;
+    private final Map<String, Partida> partidasActivas;
     public PartidaServicio() {
-        partidasActivas=new HashMap<String, Partida>();
+        partidasActivas= new HashMap<>();
     }
 
     public Partida crearPartida(Usuario dueno){
         Partida p =new Partida();
-        partidasActivas.put(p,p.id);
-        //p.anadirJugador(dueno); //TODO
+        p.id = crearIdPartida();
+        partidasActivas.put(p.id,p);
+        p.anadirJugador(dueno);
         return p;
+    }
+
+    private String crearIdPartida() {
+        //TODO
+        return "IDENTIFICADOR";
+    }
+
+    public Partida getPartida(String idPartida){
+        return partidasActivas.get(idPartida);
     }
 
 
