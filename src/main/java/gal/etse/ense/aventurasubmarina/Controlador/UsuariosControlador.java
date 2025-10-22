@@ -23,13 +23,6 @@ public class UsuariosControlador {
         return new ResponseEntity<>(usuarioGuardado, HttpStatus.CREATED);
     }
 
-    // Servizo para obter un usuario por ID
-    @GetMapping("/{id}")
-    public Usuario getLibroById(@PathVariable Long id) {
-        // Lóxica para atopar un libro polo seu ID
-        return new Usuario();
-    }
-
     // Habría patch o put, pero de momento los usuarios no tienen atributos
     // suficientes para que esta lógica tenga sentido
     @DeleteMapping("/{id}")

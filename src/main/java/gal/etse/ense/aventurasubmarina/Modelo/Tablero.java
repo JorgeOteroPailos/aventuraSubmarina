@@ -7,9 +7,9 @@ public class Tablero {
 
     private int tamano=10;
 
-    private int oxigeno=20;
+    private int oxigeno=30;
 
-    private final List<Casilla> casillas;
+    public final List<Casilla> casillas;
 
     public Tablero(int tamano){
         this.tamano=tamano;
