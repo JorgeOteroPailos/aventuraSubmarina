@@ -1,6 +1,7 @@
 package gal.etse.ense.aventurasubmarina.Modelo;
 
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.JugadorYaAnadidoException;
+import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.NoEsTuTurnoException;
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.PartidaYaEmpezadaException;
 import org.springframework.data.annotation.Id;
 
@@ -20,13 +21,12 @@ public class Partida {
 
     private final List<Jugador> jugadores=new ArrayList<>(maximoJugadores);
 
-    private int nJugadores=0;
 
     public int turno=0;
 
     private boolean empezada=false;
 
-    public Tablero tablero=new Tablero();
+    public Tablero tablero;
 
     private Instant marcaTemporal;
 
@@ -56,15 +56,12 @@ public class Partida {
         int colorDisponible= coloresUsados.nextClearBit(0);
         jugadores.add(new Jugador(this, u, colorDisponible));
         coloresUsados.set(colorDisponible, true);
-        nJugadores++;
         marcaTemporal=Instant.now();
     }
 
     public Instant getMarcaTemporal(){
         return marcaTemporal;
     }
-
-    public List<Jugador> getJugadores() {return jugadores;}
 
     public void iniciar() throws PartidaYaEmpezadaException {
         if(empezada){
@@ -81,5 +78,41 @@ public class Partida {
 
     public void reducirOxigeno() {
         //TODO
+    }
+
+    public void accion(String accion, Jugador j) throws NoEsTuTurnoException {
+
+        if(jugadores.indexOf(j)!=turno){
+            throw new NoEsTuTurnoException(jugadores.get(turno));
+        }
+
+        reducirOxigeno();
+
+        switch(accion){
+            case "coger":
+                if(tablero.casillas.get(j.posicion).tesoros.isEmpty()){
+                    //No hay tesoros
+                }else{
+                    j.tesorosCargando.add(tablero.casillas.get(j.posicion).tesoros); //Añades los tesoros como si fueran 1
+                    tablero.casillas.get(j.posicion).tesoros.removeLast(); //Eliminas el tesoro de la casilla
+                }
+                break;
+            case "dejar":
+                if(tablero.casillas.get(j.posicion).tesoros.isEmpty()){
+                    tablero.casillas.get(j.posicion).tesoros.add(j.tesorosCargando.getLast().getLast());
+                }else{
+                    //No puedes dejar si no está vacía
+                    //TODO excepcion?
+                }
+                break;
+            case "bajar":
+                j.subiendo=false; // Es redundante
+                break;
+            case "subir":
+                j.subiendo=true;
+                break;
+
+            default:
+        }
     }
 }

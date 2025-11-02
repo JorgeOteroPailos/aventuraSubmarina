@@ -1,11 +1,14 @@
 package gal.etse.ense.aventurasubmarina.Servicios;
 
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.JugadorYaAnadidoException;
+import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.NoEsTuTurnoException;
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.PartidaNoEncontradaException;
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.PartidaYaEmpezadaException;
 import gal.etse.ense.aventurasubmarina.Modelo.Jugador;
 import gal.etse.ense.aventurasubmarina.Modelo.Partida;
 import gal.etse.ense.aventurasubmarina.Modelo.Usuario;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -71,38 +74,9 @@ public class PartidaServicio {
         return p;
     }
 
-    public Partida accion(String id, String accion) throws PartidaNoEncontradaException{
+    public Partida accion(String id, String accion, Jugador j) throws PartidaNoEncontradaException, NoEsTuTurnoException {
         Partida p=getPartida(id);
-        Jugador j=p.getJugadores().get(p.turno);
-
-        p.reducirOxigeno();
-
-        switch(accion){
-            case "coger":
-                if(p.tablero.casillas.get(j.posicion).tesoros.isEmpty()){
-                    //No hay tesoros
-                }else{
-                    j.tesorosCargando.add(p.tablero.casillas.get(j.posicion).tesoros); //Añades los tesoros como si fueran 1
-                    p.tablero.casillas.get(j.posicion).tesoros.removeLast(); //Eliminas el tesoro de la casilla
-                }
-                break;
-            case "dejar":
-                if(p.tablero.casillas.get(j.posicion).tesoros.isEmpty()){
-                    p.tablero.casillas.get(j.posicion).tesoros.add(j.tesorosCargando.getLast().getLast());
-                }else{
-                    //No puedes dejar si no está vacía
-                }
-                break;
-            case "bajar":
-                j.subiendo=false; // Es redundante
-                break;
-            case "subir":
-                j.subiendo=true;
-                break;
-
-            default:
-        }
-
+        p.accion(accion, j);
         return p;
     }
 

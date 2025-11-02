@@ -1,13 +1,13 @@
 package gal.etse.ense.aventurasubmarina.Modelo.Excepciones;
 
 public class PartidaNoEncontradaException extends Exception {
-    private final String id;
+    private final String idPartida;
 
-    public PartidaNoEncontradaException(String id){
-        this.id=id;
+    public PartidaNoEncontradaException(String idPartida){
+        this.idPartida=idPartida;
     }
 
     public String getId() {
-        return id;
+        return idPartida;
     }
 }

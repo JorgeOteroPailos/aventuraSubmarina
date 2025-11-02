@@ -1,6 +1,7 @@
 package gal.etse.ense.aventurasubmarina.Controlador;
 
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.JugadorYaAnadidoException;
+import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.NoEsTuTurnoException;
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.PartidaNoEncontradaException;
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.PartidaYaEmpezadaException;
 import org.springframework.http.HttpStatus;
@@ -27,7 +28,7 @@ public class ExcepcionesControlador extends ResponseEntityExceptionHandler {
     @ExceptionHandler(JugadorYaAnadidoException.class)
     public ErrorResponse handle(JugadorYaAnadidoException ex){
         ProblemDetail error = ProblemDetail.forStatus(HttpStatus.ALREADY_REPORTED);
-        error.setDetail("El jugador con identificador="+ex.getUsuario().getNombre()+" ya está añadido a la partida con identificador="+ex.getId());
+        error.setDetail("El jugador con identificador="+ex.getUsuario().getNombre()+" ya está añadido a la partida con identificador="+ex.getIdPartida());
         error.setType(MvcUriComponentsBuilder.fromController(ExcepcionesControlador.class).pathSegment("error", "jugador-ya-anadido").build().toUri());
         error.setTitle("Jugador ya anadido");
 
@@ -40,6 +41,16 @@ public class ExcepcionesControlador extends ResponseEntityExceptionHandler {
         error.setDetail("La partida con identificador="+ex.getId()+" ya ha sido iniciada.");
         error.setType(MvcUriComponentsBuilder.fromController(ExcepcionesControlador.class).pathSegment("error", "partida-ya-empezada").build().toUri());
         error.setTitle("Partida ya empezada");
+
+        return ErrorResponse.builder(ex, error).build();
+    }
+
+    @ExceptionHandler(NoEsTuTurnoException.class)
+    public ErrorResponse handle(NoEsTuTurnoException ex){
+        ProblemDetail error = ProblemDetail.forStatus(HttpStatus.TOO_EARLY);
+        error.setDetail("No es tu turno, sino el de "+ex.getJugadorConTurno()+".");
+        error.setType(MvcUriComponentsBuilder.fromController(ExcepcionesControlador.class).pathSegment("error", "no-es-tu-turno").build().toUri());
+        error.setTitle("No es tu turno");
 
         return ErrorResponse.builder(ex, error).build();
     }

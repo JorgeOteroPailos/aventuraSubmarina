@@ -1,6 +1,7 @@
 package gal.etse.ense.aventurasubmarina.Controlador;
 
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.JugadorYaAnadidoException;
+import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.NoEsTuTurnoException;
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.PartidaNoEncontradaException;
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.PartidaYaEmpezadaException;
 import gal.etse.ense.aventurasubmarina.Modelo.Jugador;
@@ -60,13 +61,8 @@ public class PartidaControlador {
 
 
     @PostMapping("/{id}")
-    public ResponseEntity<Partida> accion(@RequestBody @NonNull Jugador j, @PathVariable String id, @RequestBody String accion) throws PartidaNoEncontradaException {
-        Partida p = partidaServicio.getPartida(id);
-
-        if(p.getJugadores().indexOf(j)==p.turno){
-            return new ResponseEntity<>(partidaServicio.accion(id, accion),HttpStatus.OK);
-        }
-
-        return null;
+    public ResponseEntity<Partida> accion(@RequestBody @NonNull Jugador j, @PathVariable String id, @RequestBody String accion) throws PartidaNoEncontradaException, NoEsTuTurnoException {
+        Partida p=partidaServicio.accion(id, accion, j);
+        return new ResponseEntity<>(p, HttpStatus.OK);
     }
 }
