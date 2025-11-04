@@ -1,14 +1,9 @@
 package gal.etse.ense.aventurasubmarina.Servicios;
 
-import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.JugadorYaAnadidoException;
-import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.NoEsTuTurnoException;
-import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.PartidaNoEncontradaException;
-import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.PartidaYaEmpezadaException;
+import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.*;
 import gal.etse.ense.aventurasubmarina.Modelo.Jugador;
 import gal.etse.ense.aventurasubmarina.Modelo.Partida;
 import gal.etse.ense.aventurasubmarina.Modelo.Usuario;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -62,7 +57,7 @@ public class PartidaServicio {
 
 
 
-    public Partida iniciarPartida(String idPartida) throws PartidaNoEncontradaException, PartidaYaEmpezadaException {
+    public Partida iniciarPartida(String idPartida) throws PartidaNoEncontradaException, PartidaYaIniciadaException {
         Partida p=getPartida(idPartida);
         p.iniciar();
         return p;
@@ -74,7 +69,7 @@ public class PartidaServicio {
         return p;
     }
 
-    public Partida accion(String id, String accion, Jugador j) throws PartidaNoEncontradaException, NoEsTuTurnoException {
+    public Partida accion(String id, String accion, Jugador j) throws PartidaNoEncontradaException, NoEsTuTurnoException, AccionIlegalException {
         Partida p=getPartida(id);
         p.accion(accion, j);
         return p;

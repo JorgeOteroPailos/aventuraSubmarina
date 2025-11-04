@@ -1,9 +1,6 @@
 package gal.etse.ense.aventurasubmarina.Controlador;
 
-import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.JugadorYaAnadidoException;
-import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.NoEsTuTurnoException;
-import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.PartidaNoEncontradaException;
-import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.PartidaYaEmpezadaException;
+import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.ErrorResponse;
@@ -25,9 +22,19 @@ public class ExcepcionesControlador extends ResponseEntityExceptionHandler {
         return ErrorResponse.builder(ex, error).build();
     }
 
+    @ExceptionHandler(JugadorNoEncontradoException.class)
+    public ErrorResponse handle(JugadorNoEncontradoException ex){
+        ProblemDetail error = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        error.setDetail("La el jugador con identificador="+ex.getIdJugador()+" no se encuentra en la partida "+ex.getIdPartida()+". ¿Quizás es el identificador erróneo?");
+        error.setType(MvcUriComponentsBuilder.fromController(ExcepcionesControlador.class).pathSegment("error", "jugador-no-encontrada").build().toUri());
+        error.setTitle("Partida no encontrada");
+
+        return ErrorResponse.builder(ex, error).build();
+    }
+
     @ExceptionHandler(JugadorYaAnadidoException.class)
     public ErrorResponse handle(JugadorYaAnadidoException ex){
-        ProblemDetail error = ProblemDetail.forStatus(HttpStatus.ALREADY_REPORTED);
+        ProblemDetail error = ProblemDetail.forStatus(HttpStatus.CONFLICT);
         error.setDetail("El jugador con identificador="+ex.getUsuario().getNombre()+" ya está añadido a la partida con identificador="+ex.getIdPartida());
         error.setType(MvcUriComponentsBuilder.fromController(ExcepcionesControlador.class).pathSegment("error", "jugador-ya-anadido").build().toUri());
         error.setTitle("Jugador ya anadido");
@@ -35,9 +42,9 @@ public class ExcepcionesControlador extends ResponseEntityExceptionHandler {
         return ErrorResponse.builder(ex, error).build();
     }
 
-    @ExceptionHandler(PartidaYaEmpezadaException.class)
-    public ErrorResponse handle(PartidaYaEmpezadaException ex){
-        ProblemDetail error = ProblemDetail.forStatus(HttpStatus.ALREADY_REPORTED);
+    @ExceptionHandler(PartidaYaIniciadaException.class)
+    public ErrorResponse handle(PartidaYaIniciadaException ex){
+        ProblemDetail error = ProblemDetail.forStatus(HttpStatus.CONFLICT);
         error.setDetail("La partida con identificador="+ex.getId()+" ya ha sido iniciada.");
         error.setType(MvcUriComponentsBuilder.fromController(ExcepcionesControlador.class).pathSegment("error", "partida-ya-empezada").build().toUri());
         error.setTitle("Partida ya empezada");

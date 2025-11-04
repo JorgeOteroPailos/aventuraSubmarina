@@ -1,6 +1,6 @@
 package gal.etse.ense.aventurasubmarina.Modelo.Excepciones;
 
-public class AccionIlegalException extends Throwable{
+public class AccionIlegalException extends Exception{
     private final String accionNoPermitida;
 
     private final String explicacion;

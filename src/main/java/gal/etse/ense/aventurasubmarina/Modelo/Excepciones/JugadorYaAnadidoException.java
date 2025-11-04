@@ -2,21 +2,22 @@ package gal.etse.ense.aventurasubmarina.Modelo.Excepciones;
 
 import gal.etse.ense.aventurasubmarina.Modelo.Usuario;
 
-public class JugadorYaAnadidoException extends Throwable {
+public class JugadorYaAnadidoException extends Exception{
+
     private final String idPartida;
 
-    private final Usuario u;
+    private final Usuario usuario;
 
-    public String getIdPartida() {
+    public String getIdPartida(){
         return idPartida;
     }
 
-    public Usuario getUsuario() {
-        return u;
+    public Usuario getUsuario(){
+        return usuario;
     }
 
-    public JugadorYaAnadidoException(String idPartida, Usuario u){
+    public JugadorYaAnadidoException(String idPartida, Usuario usuario){
         this.idPartida=idPartida;
-        this.u=u;
+        this.usuario=usuario;
     }
 }

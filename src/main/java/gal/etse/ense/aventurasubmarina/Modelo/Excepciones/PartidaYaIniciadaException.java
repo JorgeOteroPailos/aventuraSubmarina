@@ -1,9 +1,9 @@
 package gal.etse.ense.aventurasubmarina.Modelo.Excepciones;
 
-public class PartidaYaEmpezadaException extends Exception{
+public class PartidaYaIniciadaException extends Exception{
     private final String idPartida;
 
-    public PartidaYaEmpezadaException(String idPartida){
+    public PartidaYaIniciadaException(String idPartida){
         this.idPartida=idPartida;
     }
 

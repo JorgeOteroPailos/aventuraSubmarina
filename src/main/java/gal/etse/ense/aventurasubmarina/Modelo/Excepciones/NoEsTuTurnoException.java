@@ -1,7 +1,7 @@
 package gal.etse.ense.aventurasubmarina.Modelo.Excepciones;
 
 import gal.etse.ense.aventurasubmarina.Modelo.Jugador;
-public class NoEsTuTurnoException extends Throwable {
+public class NoEsTuTurnoException extends Exception{
     private final Jugador jugadorConTurno;
 
     public Jugador getJugadorConTurno() {

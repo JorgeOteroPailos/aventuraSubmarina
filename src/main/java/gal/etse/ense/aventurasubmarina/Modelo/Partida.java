@@ -3,7 +3,7 @@ package gal.etse.ense.aventurasubmarina.Modelo;
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.AccionIlegalException;
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.JugadorYaAnadidoException;
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.NoEsTuTurnoException;
-import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.PartidaYaEmpezadaException;
+import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.PartidaYaIniciadaException;
 import org.springframework.data.annotation.Id;
 
 import java.time.Instant;
@@ -45,7 +45,7 @@ public class Partida {
     }
 
 
-    public void anadirJugador(Usuario u) throws JugadorYaAnadidoException {
+    public synchronized void anadirJugador(Usuario u) throws JugadorYaAnadidoException {
         for (Jugador j : jugadores){
             if (j.getUsuario().equals(u)){
                 throw new JugadorYaAnadidoException(id, u);
@@ -61,24 +61,24 @@ public class Partida {
         return marcaTemporal;
     }
 
-    public void iniciar() throws PartidaYaEmpezadaException {
+    public synchronized void iniciar() throws PartidaYaIniciadaException {
         if(empezada){
-            throw new PartidaYaEmpezadaException(this.id);
+            throw new PartidaYaIniciadaException(this.id);
         }
         empezada=true;
         lanzarDados();
     }
 
-    public void lanzarDados() {
+    private void lanzarDados() {
         this.dado1 = ThreadLocalRandom.current().nextInt(3) + 1;
         this.dado2 = ThreadLocalRandom.current().nextInt(3) + 1;
     }
 
-    public void reducirOxigeno() {
+    private void reducirOxigeno() {
         //TODO
     }
 
-    public void accion(String accion, Jugador j) throws NoEsTuTurnoException, AccionIlegalException {
+    public synchronized void accion(String accion, Jugador j) throws NoEsTuTurnoException, AccionIlegalException {
 
         if(jugadores.indexOf(j)!=turno){
             throw new NoEsTuTurnoException(jugadores.get(turno));

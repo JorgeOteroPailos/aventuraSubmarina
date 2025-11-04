@@ -1,9 +1,6 @@
 package gal.etse.ense.aventurasubmarina.Controlador;
 
-import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.JugadorYaAnadidoException;
-import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.NoEsTuTurnoException;
-import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.PartidaNoEncontradaException;
-import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.PartidaYaEmpezadaException;
+import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.*;
 import gal.etse.ense.aventurasubmarina.Modelo.Jugador;
 import gal.etse.ense.aventurasubmarina.Modelo.Partida;
 import gal.etse.ense.aventurasubmarina.Modelo.Usuario;
@@ -52,16 +49,25 @@ public class PartidaControlador {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Partida> iniciarPartida(@PathVariable String id) throws PartidaNoEncontradaException, PartidaYaEmpezadaException {
+    public ResponseEntity<Partida> iniciarPartida(@PathVariable String id) throws PartidaNoEncontradaException, PartidaYaIniciadaException {
         Partida p = partidaServicio.iniciarPartida(id);
         return new ResponseEntity<>(p, HttpStatus.OK);
     }
 
     //TODO: nos queda abandonarPartida
+    @DeleteMapping("/{idPartida}/jugadores/{idJugador}")
+    public ResponseEntity<Void> abandonarPartida(
+            @PathVariable String idPartida,
+            @PathVariable String idJugador)
+            throws PartidaNoEncontradaException, PartidaYaIniciadaException {
+
+        //Partida p = partidaServicio.abandonarPartida(idPartida, idJugador);
+        return ResponseEntity.ok().build();
+    }
 
 
     @PostMapping("/{id}")
-    public ResponseEntity<Partida> accion(@RequestBody @NonNull Jugador j, @PathVariable String id, @RequestBody String accion) throws PartidaNoEncontradaException, NoEsTuTurnoException {
+    public ResponseEntity<Partida> accion(@RequestBody @NonNull Jugador j, @PathVariable String id, @RequestBody String accion) throws PartidaNoEncontradaException, NoEsTuTurnoException, AccionIlegalException {
         Partida p=partidaServicio.accion(id, accion, j);
         return new ResponseEntity<>(p, HttpStatus.OK);
     }
