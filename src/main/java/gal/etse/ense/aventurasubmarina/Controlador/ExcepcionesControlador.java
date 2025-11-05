@@ -35,10 +35,19 @@ public class ExcepcionesControlador extends ResponseEntityExceptionHandler {
     @ExceptionHandler(JugadorYaAnadidoException.class)
     public ErrorResponse handle(JugadorYaAnadidoException ex){
         ProblemDetail error = ProblemDetail.forStatus(HttpStatus.CONFLICT);
-        error.setDetail("El jugador con identificador="+ex.getUsuario().getNombre()+" ya está añadido a la partida con identificador="+ex.getIdPartida());
+        error.setDetail("El usuario con identificador="+ex.getUsuario().getNombre()+" ya está añadido a la partida con identificador="+ex.getIdPartida());
         error.setType(MvcUriComponentsBuilder.fromController(ExcepcionesControlador.class).pathSegment("error", "jugador-ya-anadido").build().toUri());
         error.setTitle("Jugador ya anadido");
 
+        return ErrorResponse.builder(ex, error).build();
+    }
+
+    @ExceptionHandler(NoEstasEnLaPartidaException.class)
+    public ErrorResponse handle(NoEstasEnLaPartidaException ex){
+        ProblemDetail error = ProblemDetail.forStatus(ex.getCodigoError());
+        error.setDetail("El usuario con identificador="+ex.getUsuario().getNombre()+" no se encuentra en la partida con identificador="+ex.getIdPartida());
+        error.setType(MvcUriComponentsBuilder.fromController(ExcepcionesControlador.class).pathSegment("error", "no-estas-en-la-partida").build().toUri());
+        error.setTitle("No estás en la partida");
         return ErrorResponse.builder(ex, error).build();
     }
 

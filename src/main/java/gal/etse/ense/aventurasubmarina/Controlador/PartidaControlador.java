@@ -23,7 +23,7 @@ public class PartidaControlador {
     }
 
     @PutMapping
-    public ResponseEntity<Partida> crearPartida(@RequestBody Usuario usuario) throws JugadorYaAnadidoException {
+    public ResponseEntity<Partida> crearPartida(@NonNull @RequestBody Usuario usuario) throws JugadorYaAnadidoException {
         Partida partidaCreada = partidaServicio.crearPartida(usuario);
         return new ResponseEntity<>(partidaCreada, HttpStatus.CREATED);
     }
@@ -54,21 +54,20 @@ public class PartidaControlador {
         return new ResponseEntity<>(p, HttpStatus.OK);
     }
 
-    //TODO: nos queda abandonarPartida
     @DeleteMapping("/{idPartida}/jugadores/{idJugador}")
     public ResponseEntity<Void> abandonarPartida(
             @PathVariable String idPartida,
             @PathVariable String idJugador)
-            throws PartidaNoEncontradaException, PartidaYaIniciadaException {
+            throws PartidaNoEncontradaException, NoEstasEnLaPartidaException {
 
-        //Partida p = partidaServicio.abandonarPartida(idPartida, idJugador);
+        partidaServicio.abandonarPartida(idPartida, idJugador);
         return ResponseEntity.ok().build();
     }
 
 
     @PostMapping("/{id}")
-    public ResponseEntity<Partida> accion(@RequestBody @NonNull Jugador j, @PathVariable String id, @RequestBody String accion) throws PartidaNoEncontradaException, NoEsTuTurnoException, AccionIlegalException {
-        Partida p=partidaServicio.accion(id, accion, j);
+    public ResponseEntity<Partida> accion(@RequestBody @NonNull Jugador j, @PathVariable String id, @RequestBody String accion, @RequestBody String accionSubirBajar) throws PartidaNoEncontradaException, NoEsTuTurnoException, AccionIlegalException, NoEstasEnLaPartidaException, SintaxisIncorrectaException {
+        Partida p=partidaServicio.accion(id, accion, accionSubirBajar, j);
         return new ResponseEntity<>(p, HttpStatus.OK);
     }
 }
