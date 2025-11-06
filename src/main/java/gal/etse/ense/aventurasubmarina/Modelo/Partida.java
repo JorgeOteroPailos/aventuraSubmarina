@@ -20,11 +20,17 @@ public class Partida {
 
     public int turno=0;
 
+    private int contadorRondas=1;
+
     private boolean empezada=false;
+
+    private boolean rondaAcabada=false;
 
     public Tablero tablero;
 
     private Instant marcaTemporal;
+
+    private Jugador jugadorInicial;
 
     @Id
     private String id;
@@ -126,7 +132,7 @@ public class Partida {
                     throw new AccionIlegalException("coger","No hay tesoros en esta casilla");
                 }else{
                     j.tesorosCargando.add(tablero.casillas.get(j.posicion).tesoros); //Añades los tesoros como si fueran 1
-                    tablero.casillas.get(j.posicion).tesoros.removeLast(); //Eliminas el tesoro de la casilla
+                    tablero.casillas.get(j.posicion).tesoros.clear(); //Eliminas el tesoro de la casilla
                 }
                 break;
             case "dejar":
@@ -155,6 +161,8 @@ public class Partida {
             finalizarRonda();
         }
 
+        //TODO usar el rondaAcabada y jugadorInicial
+
         Jugador jSiguiente;
         if(jugadores.getLast().getUsuario().getNombre().equals(j.getUsuario().getNombre())){
             jSiguiente=jugadores.getFirst();
@@ -181,7 +189,8 @@ public class Partida {
     }
 
     public void finalizarRonda(){
-        //TODO
+        tablero.oxigeno=30;
+        int posicionMasAlejada=0;
 
         for(Jugador j: jugadores) {
             if(j.posicion==0) {
@@ -191,33 +200,44 @@ public class Partida {
                     }
                 }
             }else{
+                if(posicionMasAlejada<j.posicion) jugadorInicial=j;
+
                 List<Tesoro> tesorosDejados= new ArrayList<>();
                 List<Tesoro> tesorosDejados2= new ArrayList<>();
 
                 if(j.tesorosCargando.size()>3){
                     for(int i=0;i<3;i++){
-                        for(List<Tesoro> tesoros: j.tesorosCargando){
-                            tesorosDejados.addAll(tesoros);
-                        }
+                        tesorosDejados.addAll(j.tesorosCargando.get(i));
                     }
                     for(int i=3;i<j.tesorosCargando.size();i++){
-                        for(List<Tesoro> tesoros: j.tesorosCargando){
-                            tesorosDejados2.addAll(tesoros);
-                        }
+                        tesorosDejados2.addAll(j.tesorosCargando.get(i));
+                    }
+                }else{
+                    for(List<Tesoro> t: j.tesorosCargando){
+                        tesorosDejados.addAll(t);
                     }
                 }
                 if(!tesorosDejados.isEmpty()) {
-                    tablero.casillas.add(new Casilla(tablero.casillas.size()));
+                    tablero.casillas.add(new Casilla());
                     tablero.casillas.getLast().tesoros = tesorosDejados;
                 }
                 if(!tesorosDejados2.isEmpty()){
-                    tablero.casillas.add(new Casilla(tablero.casillas.size()));
+                    tablero.casillas.add(new Casilla());
                     tablero.casillas.getLast().tesoros = tesorosDejados2;
                 }
-
-                //TODO comprobar si esto está acabado porque no estoy seguro
-                //TODO cambiar el constructor de casilla para que pueda no tener tesoro
             }
+
+            j.posicion=0;
+            j.subiendo=false;
+            j.tesorosCargando.clear();
+        }
+
+        tablero.casillas.removeIf(casilla -> casilla.tesoros.isEmpty()); //Debería funcionar jeje
+        rondaAcabada=true;
+        contadorRondas++;
+
+        if(contadorRondas==3){
+            acabarPartida(); //No hace mucho ahora mismo
         }
     }
 
@@ -226,15 +246,43 @@ public class Partida {
             if(j.subiendo){
                 tirada=-tirada;
             }
-            if(j.posicion+tirada<=tablero.casillas.size()-1) {
-                if(j.posicion+tirada<=0){
-                    //Yuhu subiste
-                    j.posicion=0;
 
-                }
-                else j.posicion += tirada;
-            }else j.posicion=tablero.casillas.size()-1;
+            int posicionDeseada=j.posicion+tirada;
+
+            while(tablero.casillas.get(posicionDeseada).jugadorPresente!=null){
+                if(j.subiendo) posicionDeseada--;
+                else posicionDeseada++;
+
+                if(posicionDeseada<0||posicionDeseada>tablero.casillas.size()-1) break;
+            }
+
+            if(posicionDeseada>tablero.casillas.size()-1){
+                posicionDeseada=j.posicion;
+            }else if(posicionDeseada<0){
+                posicionDeseada=0;
+            }
+
+            tablero.casillas.get(j.posicion).jugadorPresente=null;
+            j.posicion=posicionDeseada;
+            tablero.casillas.get(j.posicion).jugadorPresente=j;
+
         }
     }
 
+    public void acabarPartida(){
+        //No se
+        ArrayList<Jugador> ganadores=new ArrayList<>();
+        int dineros=-1;
+
+        for(Jugador j: jugadores){
+            if(j.puntosGanados>dineros){
+                ganadores.clear();
+                ganadores.add(j);
+            }else if(j.puntosGanados==dineros){
+                ganadores.add(j);
+            }
+        }
+
+        System.out.println("Los ganadores son" + ganadores);
+    }
 }

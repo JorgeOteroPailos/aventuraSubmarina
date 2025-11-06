@@ -8,6 +8,7 @@ import java.util.List;
 public class Casilla {
 
     public List<Tesoro> tesoros;
+    public Jugador jugadorPresente=null;
 
     public Casilla(int indice){
         tesoros=new ArrayList<>(5);
