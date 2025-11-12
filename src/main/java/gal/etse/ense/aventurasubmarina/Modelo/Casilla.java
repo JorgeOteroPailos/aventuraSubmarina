@@ -10,11 +10,6 @@ public class Casilla {
     public List<Tesoro> tesoros;
     public Jugador jugadorPresente=null;
 
-    public Casilla(int indice){
-        tesoros=new ArrayList<>(5);
-        tesoros.add(new Tesoro((indice/8) +1));
-    }
-
     public Casilla(){
         tesoros=new ArrayList<>();
     }

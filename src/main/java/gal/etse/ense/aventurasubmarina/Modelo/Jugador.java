@@ -15,6 +15,8 @@ public class Jugador {
 
     public boolean subiendo=false;
 
+    public boolean llegoAlSubmarino=false;
+
     public List<List<Tesoro>> tesorosCargando=new ArrayList<>();
 
     private int color;

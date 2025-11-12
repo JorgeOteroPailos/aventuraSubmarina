@@ -2,7 +2,7 @@ package gal.etse.ense.aventurasubmarina.Modelo;
 
 public class Tesoro{
     private final int categoria;
-    private final int valor;
+    private int valor;
 
     public int getCategoria() {
         return categoria;
@@ -14,11 +14,10 @@ public class Tesoro{
 
     public Tesoro (int categoria){
         this.categoria=categoria;
-        valor=2*categoria; //TODO
     }
 
-    protected Tesoro(){
-        categoria=2;
-        valor=2*categoria;
+    public Tesoro(int categoria, int valor){
+        this.categoria=categoria;
+        this.valor=valor;
     }
 }

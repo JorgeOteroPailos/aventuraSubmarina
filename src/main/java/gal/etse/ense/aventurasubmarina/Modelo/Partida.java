@@ -26,6 +26,8 @@ public class Partida {
 
     private boolean rondaAcabada=false;
 
+    private boolean partidaAcabada=false;
+
     public Tablero tablero;
 
     private Instant marcaTemporal;
@@ -121,6 +123,9 @@ public class Partida {
         if(indiceJ!=turno){
             throw new NoEsTuTurnoException(jugadores.get(turno));
         }
+        if(j.llegoAlSubmarino){
+            throw new AccionIlegalException("accion","Ya llegaste al submarino, espera a tus compañeros");
+        }
 
         switch(accion){
             case "nada":
@@ -161,10 +166,10 @@ public class Partida {
             finalizarRonda();
         }
 
-        //TODO usar el rondaAcabada y jugadorInicial
-
         Jugador jSiguiente;
-        if(jugadores.getLast().getUsuario().getNombre().equals(j.getUsuario().getNombre())){
+        if (jugadorInicial!=null && rondaAcabada){
+            jSiguiente=jugadorInicial;
+        }else if(jugadores.getLast().getUsuario().getNombre().equals(j.getUsuario().getNombre())){
             jSiguiente=jugadores.getFirst();
         }
         else jSiguiente=jugadores.get(jugadores.indexOf(j)+1);
@@ -229,6 +234,7 @@ public class Partida {
 
             j.posicion=0;
             j.subiendo=false;
+            j.llegoAlSubmarino=false;
             j.tesorosCargando.clear();
         }
 
@@ -260,6 +266,7 @@ public class Partida {
                 posicionDeseada=j.posicion;
             }else if(posicionDeseada<0){
                 posicionDeseada=0;
+                j.llegoAlSubmarino=true;
             }
 
             tablero.casillas.get(j.posicion).jugadorPresente=null;
@@ -284,5 +291,7 @@ public class Partida {
         }
 
         System.out.println("Los ganadores son" + ganadores);
+
+        partidaAcabada=true;
     }
 }

@@ -74,8 +74,6 @@ public class PartidaServicio {
         return partidasActivas.getPartida(idPartida);
     }
 
-
-
     public Partida iniciarPartida(String idPartida) throws PartidaNoEncontradaException, PartidaYaIniciadaException {
         Partida p=getPartida(idPartida);
         p.iniciar();
