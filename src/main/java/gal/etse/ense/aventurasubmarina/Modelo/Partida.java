@@ -1,7 +1,10 @@
 package gal.etse.ense.aventurasubmarina.Modelo;
 
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.*;
-import org.springframework.data.annotation.Id;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.Id;
+import jakarta.persistence.Transient;
 import org.springframework.http.HttpStatus;
 
 import java.time.Instant;
@@ -10,12 +13,15 @@ import java.util.BitSet;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+@Entity
+@Table(name = "partidas") // Opcional: si quieres un nombre específico de tabla
 public class Partida {
 
     private static final int maximoJugadores=6;
 
     private final BitSet coloresUsados=new BitSet(maximoJugadores);
 
+    @Transient
     protected final List<Jugador> jugadores=new ArrayList<>(maximoJugadores);
 
     public int turno=0;
@@ -28,10 +34,12 @@ public class Partida {
 
     private boolean partidaAcabada=false;
 
+    @Transient
     public Tablero tablero;
 
     private Instant marcaTemporal;
 
+    @Transient
     private Jugador jugadorInicial;
 
     @Id

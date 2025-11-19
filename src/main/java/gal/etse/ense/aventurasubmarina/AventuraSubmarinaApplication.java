@@ -2,11 +2,21 @@ package gal.etse.ense.aventurasubmarina;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
-public class AventuraSubmarinaApplication {
+@EnableJpaRepositories("gal.etse.ense.aventurasubmarina.Repositorio")
+public class AventuraSubmarinaApplication{
+    private static ConfigurableApplicationContext springContext;
+
     public static void main(String[] args) {
-        SpringApplication.run(AventuraSubmarinaApplication.class, args);
+        init();
     }
 
+    public static void init(){
+        springContext = new SpringApplicationBuilder(AventuraSubmarinaApplication.class).run();
+
+    }
 }
