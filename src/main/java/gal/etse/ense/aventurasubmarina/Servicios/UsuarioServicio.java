@@ -1,13 +1,14 @@
 package gal.etse.ense.aventurasubmarina.Servicios;
 
+import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.UsuarioExistenteException;
 import gal.etse.ense.aventurasubmarina.Modelo.Usuario;
 import gal.etse.ense.aventurasubmarina.Repositorio.UsuarioRepositorio;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UsuarioServicio {
-
     private final UsuarioRepositorio usuarioRepositorio;
+
 
     public UsuarioServicio(UsuarioRepositorio usuarioRepositorio) {
         this.usuarioRepositorio = usuarioRepositorio;
@@ -18,14 +19,24 @@ public class UsuarioServicio {
 
     }
 
-    public Usuario guardarUsuario(Usuario u){
-        usuarioRepositorio.guardarUsuario(u);
+    public Usuario guardarUsuario(Usuario u) throws UsuarioExistenteException {
+        var dbUser = usuarioRepositorio.findUsuarioByNombre(u.getNombre());
+        if (dbUser.isPresent()) {
+            throw new UsuarioExistenteException(dbUser.get());
+        }
 
-        u.setNombre(u.getNombre()+" el más guay");
-        return u;
+        //Role userRole = roleRepository.findByRolename("USER");
+
+        return usuarioRepositorio.save(u);
     }
 
-    public static boolean eliminarPorId(String id){
-        return UsuarioRepositorio.eliminarPorId(id);
+    public boolean eliminarPorId(String id){
+
+        var dbUser = usuarioRepositorio.findUsuarioByNombre(id);
+        if (dbUser.isPresent()) {
+            usuarioRepositorio.deleteById(id);
+            return true;
+        }
+        return false;
     }
 }

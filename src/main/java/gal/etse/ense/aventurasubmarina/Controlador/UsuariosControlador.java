@@ -27,7 +27,7 @@ public class UsuariosControlador {
     // suficientes para que esta lógica tenga sentido
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarUsuario(@PathVariable String id) {
-        boolean eliminado = UsuarioServicio.eliminarPorId(id);
+        boolean eliminado = usuarioServicio.eliminarPorId(id);
 
         if (eliminado) {
             // Si se eliminó correctamente, devolvemos 204 No Content

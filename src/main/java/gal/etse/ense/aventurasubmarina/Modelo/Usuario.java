@@ -1,7 +1,5 @@
 package gal.etse.ense.aventurasubmarina.Modelo;
 
-
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import jakarta.persistence.*;
 
 @Entity
