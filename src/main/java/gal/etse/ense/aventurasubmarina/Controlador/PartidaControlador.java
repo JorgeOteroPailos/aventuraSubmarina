@@ -23,7 +23,7 @@ public class PartidaControlador {
     }
 
     @PutMapping
-    public ResponseEntity<Partida> crearPartida(@NonNull @RequestBody Usuario usuario) throws JugadorYaAnadidoException {
+    public ResponseEntity<Partida> crearPartida(@RequestBody Usuario usuario) throws JugadorYaAnadidoException {
         Partida partidaCreada = partidaServicio.crearPartida(usuario);
         return new ResponseEntity<>(partidaCreada, HttpStatus.CREATED);
     }
@@ -66,7 +66,7 @@ public class PartidaControlador {
 
 
     @PostMapping("/{id}")
-    public ResponseEntity<Partida> accion(@RequestBody @NonNull Jugador j, @PathVariable String id, @RequestBody String accion, @RequestBody String accionSubirBajar) throws PartidaNoEncontradaException, NoEsTuTurnoException, AccionIlegalException, NoEstasEnLaPartidaException, SintaxisIncorrectaException {
+    public ResponseEntity<Partida> accion(@RequestBody Jugador j, @PathVariable String id, @RequestBody String accion, @RequestBody String accionSubirBajar) throws PartidaNoEncontradaException, NoEsTuTurnoException, AccionIlegalException, NoEstasEnLaPartidaException, SintaxisIncorrectaException {
         Partida p=partidaServicio.accion(id, accion, accionSubirBajar, j);
 
         return new ResponseEntity<>(p, HttpStatus.OK); //Hacer algo más arriba sobre si la partida acabó

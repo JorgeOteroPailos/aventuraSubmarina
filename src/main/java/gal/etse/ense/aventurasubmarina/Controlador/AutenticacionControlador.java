@@ -1,0 +1,107 @@
+package gal.etse.ense.aventurasubmarina.Controlador;
+
+
+import gal.etse.ense.aventurasubmarina.Modelo.Usuario;
+import gal.etse.ense.aventurasubmarina.Servicios.AutenticacionServicio;
+import gal.etse.ense.aventurasubmarina.Servicios.UsuarioServicio;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.Operation;
+import org.jspecify.annotations.NullMarked;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.server.Cookie;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
+
+import java.time.Duration;
+
+@NullMarked
+@RestController
+@RequestMapping("auth")
+public class AutenticacionControlador {
+
+    /*
+
+    private static final String REFRESH_TOKEN_COOKIE_NAME = "__Secure-RefreshToken";
+    private final AutenticacionServicio autenticacion;
+    private final UsuarioServicio usuarios;
+
+    @Autowired
+    public AutenticacionControlador(AutenticacionServicio autenticacion, UsuarioServicio usuarios) {
+        this.autenticacion = autenticacion;
+        this.usuarios = usuarios;
+    }
+
+    @Operation(
+            summary = "Authenticate into the application",
+            description = "Authenticates the usuario into the application and gets a JWT token in the Authorization header"
+    )
+    @SecurityRequirement(name = "")
+    @PostMapping(
+            path = "login",
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    @PreAuthorize("isAnonymous()")
+    public ResponseEntity<Void> login(@RequestBody Usuario usuario) {
+        Usuario loggedUsuario = autenticacion.login(usuario);
+        String refreshToken = autenticacion.regenerateRefreshToken(usuario);
+        String refreshPath = MvcUriComponentsBuilder.fromMethodName(AutenticacionControlador.class, "refresh", "").build().toUri().getPath();
+
+        ResponseCookie cookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE_NAME, refreshToken)
+                .secure(true)
+                .httpOnly(true)
+                .sameSite(Cookie.SameSite.STRICT.toString())
+                .path(refreshPath)
+                .maxAge(Duration.ofDays(7))
+                .build();
+
+        return ResponseEntity.noContent()
+                .headers(headers -> headers.setBearerAuth(loggedUsuario.password()))
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .build();
+    }
+
+    @PostMapping(
+            path = "register",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @PreAuthorize("isAnonymous()")
+    public ResponseEntity<Usuario> register(@RequestBody Usuario usuario) throws DuplicateUsuarioException {
+        Usuario createdUsuario = usuarios.create(usuario);
+
+        return ResponseEntity.created(MvcUriComponentsBuilder.fromMethodName(UsuarioControlador.class, "getUsuario", usuario.usuarioname()).build().toUri())
+                .body(createdUsuario);
+    }
+
+    @PostMapping("refresh")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> refresh(@CookieValue(name = REFRESH_TOKEN_COOKIE_NAME) String refreshToken) throws InvalidRefreshTokenException {
+        Usuario usuario = autenticacion.login(refreshToken);
+
+        return login(usuario);
+    }
+
+    @PostMapping("logout")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> logout(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String token) {
+        Usuario usuario = autenticacion.parseJWT(token.replaceFirst("^Bearer ", ""));
+        autenticacion.invalidateTokens(usuario.usuarioname());
+        ResponseCookie cookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE_NAME, null).build();
+
+        return ResponseEntity.noContent()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .build();
+    }
+
+
+     */
+
+}

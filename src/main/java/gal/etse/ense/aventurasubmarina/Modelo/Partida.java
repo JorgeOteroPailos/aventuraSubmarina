@@ -59,9 +59,7 @@ public class Partida {
     }
 
     public Partida(){
-        tablero=new Tablero();
-        marcaTemporal= Instant.now();
-        this.id="hola";
+
     }
 
 

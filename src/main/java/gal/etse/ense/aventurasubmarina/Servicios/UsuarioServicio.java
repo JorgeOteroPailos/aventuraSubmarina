@@ -15,7 +15,7 @@ public class UsuarioServicio {
     }
 
     public void crearUsuario(String nombre){
-        Usuario u=new Usuario(nombre);
+        Usuario u=new Usuario(nombre, "contrasena");
 
     }
 
@@ -26,7 +26,6 @@ public class UsuarioServicio {
         }
 
         //Role userRole = roleRepository.findByRolename("USER");
-
         return usuarioRepositorio.save(u);
     }
 

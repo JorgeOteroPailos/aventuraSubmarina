@@ -22,7 +22,7 @@ public class Cliente {
         mapper.registerModule(new JavaTimeModule());  // 👈 soporte para Instant, LocalDateTime, etc.
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-        Usuario u =new Usuario("Jorge");
+        Usuario u =new Usuario("Jorge", "contrasena");
 
         try {
             System.out.println("HOLAAAAAAAAAAAAAA");
@@ -96,12 +96,38 @@ public class Cliente {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                    } //TODO Crear usuario (ya debería funcionar)
+                    }else if(partes[1].equalsIgnoreCase("usuario")){
+                        String jsonUsuario = mapper.writeValueAsString(u);
 
+                        HttpRequest req = HttpRequest.newBuilder()
+                                .uri(URI.create(BASE_URL + "/usuarios"))
+                                .header("Content-Type", "application/json")
+                                .POST(HttpRequest.BodyPublishers.ofString(jsonUsuario))
+                                .build();
+
+                        try {
+                            // Enviar la solicitud y recibir respuesta como String
+                            HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());
+
+                            if (res.statusCode() > 199 && res.statusCode()<400) {
+                                // Parsear JSON a objeto Partida
+
+                                Partida partida = mapper.readValue(res.body(), Partida.class);
+
+                                // Imprimir usando toString()
+                                System.out.println("✅ Usuario guardado: " + partida.toString());
+                            } else {
+                                System.out.println("❌ Error al guardar usuario: " + res.statusCode());
+                                System.out.println("Cuerpo del error: " + res.body());
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
 
                     break;
                 case "info":
-
+                    break;
 
                 default:
                     System.out.println("Comando no reconocido. Escribe 'ayuda'.");

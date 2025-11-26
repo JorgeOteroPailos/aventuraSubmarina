@@ -16,6 +16,8 @@ public class Tesoro{
         this.categoria=categoria;
     }
 
+    public Tesoro(){categoria=10;}
+
     public Tesoro(int categoria, int valor){
         this.categoria=categoria;
         this.valor=valor;
