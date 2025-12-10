@@ -27,7 +27,17 @@ public class ExcepcionesControlador extends ResponseEntityExceptionHandler {
         ProblemDetail error = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
         error.setDetail("La el jugador con identificador="+ex.getIdJugador()+" no se encuentra en la partida "+ex.getIdPartida()+". ¿Quizás es el identificador erróneo?");
         error.setType(MvcUriComponentsBuilder.fromController(ExcepcionesControlador.class).pathSegment("error", "jugador-no-encontrada").build().toUri());
-        error.setTitle("Partida no encontrada");
+        error.setTitle("Jugador no encontrado");
+
+        return ErrorResponse.builder(ex, error).build();
+    }
+
+    @ExceptionHandler(UsuarioNoEncontradoException.class)
+    public ErrorResponse handle(UsuarioNoEncontradoException ex){
+        ProblemDetail error = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        error.setDetail("La el jugador con nombre="+ex.getNombreUsuario()+" no se encuentra en la base de datos. ¿Quizás es el identificador erróneo?");
+        error.setType(MvcUriComponentsBuilder.fromController(ExcepcionesControlador.class).pathSegment("error", "usuario-no-encontrada").build().toUri());
+        error.setTitle("Usuario no encontrado");
 
         return ErrorResponse.builder(ex, error).build();
     }

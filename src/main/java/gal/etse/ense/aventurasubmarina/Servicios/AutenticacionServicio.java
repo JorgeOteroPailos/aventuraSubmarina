@@ -2,11 +2,28 @@ package gal.etse.ense.aventurasubmarina.Servicios;
 
 
 
+import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.TokenRefrescoInvalidoException;
+import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.UsuarioNoEncontradoException;
+import gal.etse.ense.aventurasubmarina.Modelo.TokenRefresco;
+import gal.etse.ense.aventurasubmarina.Modelo.UsuarioDTO;
+import gal.etse.ense.aventurasubmarina.Repositorio.RolesRepositorio;
+import gal.etse.ense.aventurasubmarina.Repositorio.TokenRefrescoRepositorio;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.resilience.annotation.ConcurrencyLimit;
+import org.springframework.resilience.annotation.Retryable;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import io.jsonwebtoken.Jwts;
 
 import java.security.KeyPair;
 import java.time.Duration;
@@ -15,17 +32,15 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import gal.etse.ense.aventurasubmarina.Repositorio.UsuarioRepositorio;
-import gal.etse.ense.aventurasubmarina.Modelo.Usuario;
 
 @Service
 public class AutenticacionServicio {
-    
-/*
+
     private final AuthenticationManager autenticacionManager;
     private final KeyPair keyPair;
     private final UsuarioRepositorio usuarioRepositorio;
-    private final RoleRepositorio roleRepositorio;
-    private final RefreshTokenRepositorio refreshTokenRepositorio;
+    private final RolesRepositorio rolesRepositorio;
+    private final TokenRefrescoRepositorio refreshTokenRepositorio;
 
     @Value("${auth.jwt.ttl:PT15M}")
     private Duration tokenTTL;
@@ -38,13 +53,13 @@ public class AutenticacionServicio {
             AuthenticationManager autenticacionManager,
             KeyPair keyPair,
             UsuarioRepositorio usuarioRepositorio,
-            RoleRepositorio roleRepositorio,
-            RefreshTokenRepositorio refreshTokenRepositorio
+            RolesRepositorio roleRepositorio,
+            TokenRefrescoRepositorio refreshTokenRepositorio
     ) {
         this.autenticacionManager = autenticacionManager;
         this.keyPair = keyPair;
         this.usuarioRepositorio = usuarioRepositorio;
-        this.roleRepositorio = roleRepositorio;
+        this.rolesRepositorio = roleRepositorio;
         this.refreshTokenRepositorio = refreshTokenRepositorio;
     }
 
@@ -55,9 +70,10 @@ public class AutenticacionServicio {
             timeUnit = TimeUnit.MILLISECONDS,
             multiplier = 2
     )
+
     @ConcurrencyLimit(10)
-    public Usuario login(Usuario usuario) throws AuthenticationException {
-        Authentication auth = autenticacionManager.authenticate(UsuarionamePasswordAuthenticationToken.unauthenticated(usuario.usuarioname(), usuario.password()));
+    public UsuarioDTO login(UsuarioDTO usuario) throws AuthenticationException {
+        Authentication auth = autenticacionManager.authenticate(UsernamePasswordAuthenticationToken.unauthenticated(usuario.username(), usuario.password()));
 
         List<String> roles = auth.getAuthorities()
                 .stream()
@@ -74,25 +90,25 @@ public class AutenticacionServicio {
                 .signWith(keyPair.getPrivate())
                 .compact();
 
-        return new Usuario(usuario.usuarioname(), token, new HashSet<>(roles));
+        return new UsuarioDTO(usuario.username(), token, new HashSet<>(roles));
     }
 
-    public Usuario login(String refreshToken) throws InvalidRefreshTokenException {
-        Optional<RefreshToken> token = refreshTokenRepositorio.findByToken(refreshToken);
+    public UsuarioDTO login(String refreshToken) throws TokenRefrescoInvalidoException {
+        Optional<TokenRefresco> token = refreshTokenRepositorio.findByToken(refreshToken);
 
         if (token.isPresent()) {
-            var usuario = usuarioRepositorio.findByUsuarioname(token.get().getUsuario()).orElseThrow(() -> new UsuarionameNotFoundException(token.get().getUsuario()));
+            var usuario = usuarioRepositorio.findUsuarioByNombre(token.get().getUsuario()).orElseThrow(() -> new UsuarioNoEncontradoException(token.get().getUsuario()));
 
-            return login(Usuario.from(usuario));
+            return login(UsuarioDTO.from(usuario));
         }
 
-        throw new InvalidRefreshTokenException(refreshToken);
+        throw new TokenRefrescoInvalidoException(refreshToken);
     }
 
-    public String regenerateRefreshToken(Usuario usuario) {
+    public String regenerateTokenRefresco(UsuarioDTO usuario) {
         UUID uuid = UUID.randomUUID();
-        RefreshToken refreshToken = new RefreshToken(uuid.toString(), usuario.usuarioname(), refreshTTL.toSeconds());
-        refreshTokenRepositorio.deleteAllByUsuario(usuario.usuarioname());
+        TokenRefresco refreshToken = new TokenRefresco(uuid.toString(), usuario.username(), refreshTTL.toSeconds());
+        refreshTokenRepositorio.deleteAllByUsuario(usuario.username());
         refreshTokenRepositorio.save(refreshToken);
 
         return refreshToken.getToken();
@@ -102,7 +118,7 @@ public class AutenticacionServicio {
         refreshTokenRepositorio.deleteAllByUsuario(usuarioname);
     }
 
-    public Usuario parseJWT(String token) throws JwtException {
+    public UsuarioDTO parseJWT(String token) throws JwtException {
         Claims claims = Jwts.parser()
                 .verifyWith(keyPair.getPublic())
                 .build()
@@ -110,27 +126,28 @@ public class AutenticacionServicio {
                 .getPayload();
 
         String usuarioname = claims.getSubject();
-        var usuario = usuarioRepositorio.findByUsuarioname(usuarioname);
+        var usuario = usuarioRepositorio.findUsuarioByNombre(usuarioname);
 
         if (usuario.isPresent()) {
-            return Usuario.from(usuario.get());
+            return UsuarioDTO.from(usuario.get());
         } else {
-            throw new UsuarionameNotFoundException("Usuarioname not found");
+            throw new UsuarioNoEncontradoException("No se ha encontrado un usuario con este nombre");
         }
     }
+
 
     public RoleHierarchy loadRoleHierarchy() {
         RoleHierarchyImpl.Builder builder = RoleHierarchyImpl.withRolePrefix("");
 
-        roleRepositorio.findAll().forEach(role -> {
-            if (!role.getIncludes().isEmpty()) {
-                builder.role("ROLE_"+role.getRolename()).implies(
-                        role.getIncludes().stream().map(i -> "ROLE_"+i.getRolename()).toArray(String[]::new)
+        rolesRepositorio.findAll().forEach(rol -> {
+            if (!rol.getIncludes().isEmpty()) {
+                builder.role("ROLE_"+rol.getRolename()).implies(
+                        rol.getIncludes().stream().map(i -> "ROLE_"+i.getRolename()).toArray(String[]::new)
                 );
             }
-            if (!role.getPermissions().isEmpty()) {
-                builder.role("ROLE_"+role.getRolename()).implies(
-                        role.getPermissions().stream().map(p -> p.getResource()+":"+p.getAction()).toArray(String[]::new)
+            if (!rol.getPermisos().isEmpty()) {
+                builder.role("ROLE_"+rol.getRolename()).implies(
+                        rol.getPermisos().stream().map(p -> p.getResource()+":"+p.getAction()).toArray(String[]::new)
                 );
             }
         });
@@ -138,8 +155,4 @@ public class AutenticacionServicio {
         return builder.build();
     }
 
-
-
- */
-     
 }

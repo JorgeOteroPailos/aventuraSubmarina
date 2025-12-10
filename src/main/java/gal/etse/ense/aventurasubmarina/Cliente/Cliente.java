@@ -3,13 +3,16 @@ package gal.etse.ense.aventurasubmarina.Cliente;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.*;
+import java.util.HashSet;
 import java.util.Scanner;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import gal.etse.ense.aventurasubmarina.Modelo.Partida;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import gal.etse.ense.aventurasubmarina.Modelo.Rol;
 import gal.etse.ense.aventurasubmarina.Modelo.Usuario;
 
 public class Cliente {
@@ -22,7 +25,7 @@ public class Cliente {
         mapper.registerModule(new JavaTimeModule());  // 👈 soporte para Instant, LocalDateTime, etc.
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-        Usuario u =new Usuario("Jorge", "contrasena");
+        Usuario u =new Usuario("Jorge", "contrasena", new HashSet<Rol>());
 
         try {
             System.out.println("HOLAAAAAAAAAAAAAA");
@@ -88,9 +91,9 @@ public class Cliente {
                                 Partida partida = mapper.readValue(res.body(), Partida.class);
 
                                 // Imprimir usando toString()
-                                System.out.println("✅ Partida creada: " + partida.toString());
+                                System.out.println("Partida creada: " + partida.toString());
                             } else {
-                                System.out.println("❌ Error al crear partida: " + res.statusCode());
+                                System.out.println("Error al crear partida: " + res.statusCode());
                                 System.out.println("Cuerpo del error: " + res.body());
                             }
                         } catch (Exception e) {
@@ -100,7 +103,7 @@ public class Cliente {
                         String jsonUsuario = mapper.writeValueAsString(u);
 
                         HttpRequest req = HttpRequest.newBuilder()
-                                .uri(URI.create(BASE_URL + "/usuarios"))
+                                .uri(URI.create(BASE_URL + "/autenticacion/register"))
                                 .header("Content-Type", "application/json")
                                 .POST(HttpRequest.BodyPublishers.ofString(jsonUsuario))
                                 .build();
@@ -115,9 +118,9 @@ public class Cliente {
                                 Partida partida = mapper.readValue(res.body(), Partida.class);
 
                                 // Imprimir usando toString()
-                                System.out.println("✅ Usuario guardado: " + partida.toString());
+                                System.out.println("Usuario guardado: " + u);
                             } else {
-                                System.out.println("❌ Error al guardar usuario: " + res.statusCode());
+                                System.out.println("Error al guardar usuario: " + res.statusCode());
                                 System.out.println("Cuerpo del error: " + res.body());
                             }
                         } catch (Exception e) {

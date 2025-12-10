@@ -1,7 +1,10 @@
 package gal.etse.ense.aventurasubmarina.Controlador;
 
 
+import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.TokenRefrescoInvalidoException;
+import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.UsuarioExistenteException;
 import gal.etse.ense.aventurasubmarina.Modelo.Usuario;
+import gal.etse.ense.aventurasubmarina.Modelo.UsuarioDTO;
 import gal.etse.ense.aventurasubmarina.Servicios.AutenticacionServicio;
 import gal.etse.ense.aventurasubmarina.Servicios.UsuarioServicio;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -14,20 +17,17 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
 import java.time.Duration;
 
 @NullMarked
 @RestController
-@RequestMapping("auth")
+@RequestMapping("autenticacion")
 public class AutenticacionControlador {
 
-    /*
+
 
     private static final String REFRESH_TOKEN_COOKIE_NAME = "__Secure-RefreshToken";
     private final AutenticacionServicio autenticacion;
@@ -39,6 +39,7 @@ public class AutenticacionControlador {
         this.usuarios = usuarios;
     }
 
+
     @Operation(
             summary = "Authenticate into the application",
             description = "Authenticates the usuario into the application and gets a JWT token in the Authorization header"
@@ -48,10 +49,11 @@ public class AutenticacionControlador {
             path = "login",
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    @PreAuthorize("isAnonymous()")
-    public ResponseEntity<Void> login(@RequestBody Usuario usuario) {
-        Usuario loggedUsuario = autenticacion.login(usuario);
-        String refreshToken = autenticacion.regenerateRefreshToken(usuario);
+
+    //@PreAuthorize("isAnonymous()")
+    public ResponseEntity<Void> iniciarSesion(@RequestBody UsuarioDTO usuario) {
+        UsuarioDTO loggedUsuario = autenticacion.login(usuario);
+        String refreshToken = autenticacion.regenerateTokenRefresco(usuario);
         String refreshPath = MvcUriComponentsBuilder.fromMethodName(AutenticacionControlador.class, "refresh", "").build().toUri().getPath();
 
         ResponseCookie cookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE_NAME, refreshToken)
@@ -68,32 +70,21 @@ public class AutenticacionControlador {
                 .build();
     }
 
-    @PostMapping(
-            path = "register",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    @PreAuthorize("isAnonymous()")
-    public ResponseEntity<Usuario> register(@RequestBody Usuario usuario) throws DuplicateUsuarioException {
-        Usuario createdUsuario = usuarios.create(usuario);
 
-        return ResponseEntity.created(MvcUriComponentsBuilder.fromMethodName(UsuarioControlador.class, "getUsuario", usuario.usuarioname()).build().toUri())
-                .body(createdUsuario);
-    }
 
     @PostMapping("refresh")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Void> refresh(@CookieValue(name = REFRESH_TOKEN_COOKIE_NAME) String refreshToken) throws InvalidRefreshTokenException {
-        Usuario usuario = autenticacion.login(refreshToken);
+    public ResponseEntity<Void> refresh(@CookieValue(name = REFRESH_TOKEN_COOKIE_NAME) String refreshToken) throws TokenRefrescoInvalidoException {
+        UsuarioDTO usuario = autenticacion.login(refreshToken);
 
-        return login(usuario);
+        return iniciarSesion(usuario);
     }
 
     @PostMapping("logout")
-    @PreAuthorize("isAuthenticated()")
+    //@PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> logout(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String token) {
-        Usuario usuario = autenticacion.parseJWT(token.replaceFirst("^Bearer ", ""));
-        autenticacion.invalidateTokens(usuario.usuarioname());
+        UsuarioDTO usuario = autenticacion.parseJWT(token.replaceFirst("^Bearer ", ""));
+        autenticacion.invalidateTokens(usuario.username());
         ResponseCookie cookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE_NAME, null).build();
 
         return ResponseEntity.noContent()
@@ -102,6 +93,21 @@ public class AutenticacionControlador {
     }
 
 
-     */
 
+
+
+    @PostMapping(
+            path = "register",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @PreAuthorize("isAnonymous()")
+    public ResponseEntity<Usuario> register(@RequestBody Usuario usuario) throws UsuarioExistenteException {
+        Usuario createdUsuario = usuarios.crearUsuario(usuario);
+
+
+        return ResponseEntity.created(MvcUriComponentsBuilder.fromMethodName(UsuariosControlador.class, "getUsuario", usuario.getNombre()).build().toUri())
+
+                .body(createdUsuario);
+    }
 }

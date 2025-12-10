@@ -1,18 +1,23 @@
 package gal.etse.ense.aventurasubmarina.Modelo;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@Table(name = "usuarios")
+import java.util.Set;
+
+@Document(collection = "usuarios")
 public class Usuario{
     @Id
     private String nombre;
 
     private String contrasena;
 
-    public Usuario(String nombre, String contrasena){
+    private Set<Rol> roles;
+
+    public Usuario(String nombre, String contrasena, Set<Rol> roles){
         this.setNombre(nombre);
         this.contrasena = contrasena;
+        this.roles=roles;
     }
 
     public Usuario() {
@@ -32,5 +37,8 @@ public class Usuario{
     }
     public String getContrasena() {
         return contrasena;
+    }
+    public Set<Rol> getRoles(){
+        return roles;
     }
 }

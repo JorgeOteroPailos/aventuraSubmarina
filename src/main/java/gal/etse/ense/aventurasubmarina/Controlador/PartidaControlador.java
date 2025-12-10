@@ -5,6 +5,7 @@ import gal.etse.ense.aventurasubmarina.Modelo.Jugador;
 import gal.etse.ense.aventurasubmarina.Modelo.Partida;
 import gal.etse.ense.aventurasubmarina.Modelo.Usuario;
 import gal.etse.ense.aventurasubmarina.Servicios.PartidaServicio;
+import org.jspecify.annotations.NullMarked;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 
+@NullMarked
 @RestController
 @RequestMapping("/partidas")
 public class PartidaControlador {
