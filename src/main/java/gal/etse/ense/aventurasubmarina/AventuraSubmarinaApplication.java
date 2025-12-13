@@ -14,7 +14,7 @@ public class AventuraSubmarinaApplication{
     }
 
     public static void init(){
+        MongoConnection db= new MongoConnection();
         springContext = new SpringApplicationBuilder(AventuraSubmarinaApplication.class).run();
-
     }
 }

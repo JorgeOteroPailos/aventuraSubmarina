@@ -135,7 +135,6 @@ public class AutenticacionServicio {
         }
     }
 
-
     public RoleHierarchy loadRoleHierarchy() {
         RoleHierarchyImpl.Builder builder = RoleHierarchyImpl.withRolePrefix("");
 

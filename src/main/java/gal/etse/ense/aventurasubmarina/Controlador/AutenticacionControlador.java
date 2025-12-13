@@ -105,7 +105,6 @@ public class AutenticacionControlador {
     public ResponseEntity<Usuario> register(@RequestBody Usuario usuario) throws UsuarioExistenteException {
         Usuario createdUsuario = usuarios.crearUsuario(usuario);
 
-
         return ResponseEntity.created(MvcUriComponentsBuilder.fromMethodName(UsuariosControlador.class, "getUsuario", usuario.getNombre()).build().toUri())
                 .body(createdUsuario);
     }
