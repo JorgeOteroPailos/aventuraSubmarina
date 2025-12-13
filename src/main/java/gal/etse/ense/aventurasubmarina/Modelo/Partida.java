@@ -5,7 +5,6 @@ import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.annotation.Transient;
-import org.springframework.http.HttpStatus;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -115,7 +114,7 @@ public class Partida {
             }
         }
         int colorDisponible= coloresUsados.nextClearBit(0);
-        jugadores.add(new Jugador(this, u, colorDisponible));
+        jugadores.add(new Jugador(u, colorDisponible));
         coloresUsados.set(colorDisponible, true);
         marcaTemporal=Instant.now();
     }
@@ -182,7 +181,7 @@ public class Partida {
 
         int indiceJ=jugadores.indexOf(j);
         if(indiceJ==-1){
-            throw new NoEstasEnLaPartidaException(this.id, nombreJugador, HttpStatus.FORBIDDEN);
+            throw new NoEstasEnLaPartidaException(this.id, nombreJugador);
         }
         if(indiceJ!=turno){
             throw new NoEsTuTurnoException(jugadores.get(turno));
@@ -251,7 +250,7 @@ public class Partida {
         turno++;
     }
 
-    public void abandonarPartida(String idJugador){
+    public void abandonarPartida(String idJugador) throws NoEstasEnLaPartidaException {
         Jugador jugadorEliminar=null;
         for(Jugador j:jugadores){
             if(j.getUsuario().getNombre().equals(idJugador)){
@@ -259,6 +258,9 @@ public class Partida {
             }
         }
         if(jugadorEliminar!=null) jugadores.remove(jugadorEliminar);
+        else{
+            throw new NoEstasEnLaPartidaException(this.id, idJugador);
+        }
     }
 
     public void finalizarRonda(){

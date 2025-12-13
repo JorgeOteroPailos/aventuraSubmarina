@@ -7,7 +7,7 @@ import java.util.List;
 public class Jugador {
     private Usuario usuario;
 
-    private Partida partida;
+
 
     public int posicion=0;
 
@@ -30,8 +30,7 @@ public class Jugador {
         return color;
     }
 
-    public Jugador(Partida partida, Usuario usuario, int color){
-        this.partida=partida;
+    public Jugador(Usuario usuario, int color){
         this.usuario=usuario;
         this.color=color;
     }

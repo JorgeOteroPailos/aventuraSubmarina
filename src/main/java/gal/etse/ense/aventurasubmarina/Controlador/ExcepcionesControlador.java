@@ -64,7 +64,7 @@ public class ExcepcionesControlador extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(NoEstasEnLaPartidaException.class)
     public ErrorResponse handle(NoEstasEnLaPartidaException ex){
-        ProblemDetail error = ProblemDetail.forStatus(ex.getCodigoError());
+        ProblemDetail error = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
         error.setDetail("El usuario con identificador="+ex.getNombreJugador()+" no se encuentra en la partida con identificador="+ex.getIdPartida());
         error.setType(MvcUriComponentsBuilder.fromController(ExcepcionesControlador.class).pathSegment("error", "no-estas-en-la-partida").build().toUri());
         error.setTitle("No estás en la partida");
@@ -87,6 +87,26 @@ public class ExcepcionesControlador extends ResponseEntityExceptionHandler {
         error.setDetail("No es tu turno, sino el de "+ex.getJugadorConTurno()+".");
         error.setType(MvcUriComponentsBuilder.fromController(ExcepcionesControlador.class).pathSegment("error", "no-es-tu-turno").build().toUri());
         error.setTitle("No es tu turno");
+
+        return ErrorResponse.builder(ex, error).build();
+    }
+
+    @ExceptionHandler(NoEresElCreadorException.class)
+    public ErrorResponse handle(NoEresElCreadorException ex){
+        ProblemDetail error = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+        error.setDetail("No eres el creador de la partida, solo él puede iniciarla");
+        error.setType(MvcUriComponentsBuilder.fromController(ExcepcionesControlador.class).pathSegment("error", "no-eres-el-creador").build().toUri());
+        error.setTitle("No eres el creador de la partida");
+
+        return ErrorResponse.builder(ex, error).build();
+    }
+
+    @ExceptionHandler(SuplantacionException.class)
+    public ErrorResponse handle(SuplantacionException ex){
+        ProblemDetail error = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+        error.setDetail("Fallo con la autenticación, eres realmente "+ex.nombreUsuarioSuplantado+" o eres "+ex.nombreUsuarioToken+" ?");
+        error.setType(MvcUriComponentsBuilder.fromController(ExcepcionesControlador.class).pathSegment("error", "suplantacion").build().toUri());
+        error.setTitle("Estás suplantando a alguien");
 
         return ErrorResponse.builder(ex, error).build();
     }

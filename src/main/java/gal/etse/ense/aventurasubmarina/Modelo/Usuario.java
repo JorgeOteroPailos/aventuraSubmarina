@@ -26,6 +26,12 @@ public class Usuario{
 
     }
 
+    public Usuario(String nombre){
+        this.nombre=nombre;
+        this.roles=new HashSet<>();
+        roles.add(new Rol("USER", null, null));
+    }
+
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
