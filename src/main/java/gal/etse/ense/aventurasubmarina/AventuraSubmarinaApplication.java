@@ -1,6 +1,6 @@
 package gal.etse.ense.aventurasubmarina;
 
-import org.springframework.boot.SpringApplication;
+import gal.etse.ense.aventurasubmarina.Utils.MongoConnection;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;

@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Document(collection = "partidas")
@@ -32,14 +33,58 @@ public class Partida {
 
     private boolean rondaAcabada=false;
 
+    public BitSet getColoresUsados() {
+        return coloresUsados;
+    }
+
+    public List<Jugador> getJugadores() {
+        return jugadores;
+    }
+
+    public int getTurno() {
+        return turno;
+    }
+
+    public int getContadorRondas() {
+        return contadorRondas;
+    }
+
+    public boolean isEmpezada() {
+        return empezada;
+    }
+
+    public boolean isRondaAcabada() {
+        return rondaAcabada;
+    }
+
+    public boolean isPartidaAcabada() {
+        return partidaAcabada;
+    }
+
+    public Tablero getTablero() {
+        return tablero;
+    }
+
+    public Jugador getJugadorInicial() {
+        return jugadorInicial;
+    }
+
+    public int getDado1() {
+        return dado1;
+    }
+
+    public int getDado2() {
+        return dado2;
+    }
+
     private boolean partidaAcabada=false;
 
-    @Transient
+
     public Tablero tablero;
 
     private Instant marcaTemporal;
 
-    @Transient
+
     private Jugador jugadorInicial;
 
     @Id
@@ -121,14 +166,31 @@ public class Partida {
         return r.toString();
     }
 
-    public synchronized void accion(String accion, String accionSubirBajar, Jugador j) throws NoEsTuTurnoException, AccionIlegalException, NoEstasEnLaPartidaException, SintaxisIncorrectaException {
+    private Jugador buscarPorNombre(String nombre){
+        for (Jugador j : jugadores){
+            if(Objects.equals(j.getUsuario().getNombre(), nombre)){
+                return j;
+            }
+
+        }
+        return null;
+    }
+
+    public synchronized void accion(String accion, String accionSubirBajar, String nombreJugador) throws NoEsTuTurnoException, AccionIlegalException, NoEstasEnLaPartidaException, SintaxisIncorrectaException {
+
+        Jugador j=buscarPorNombre(nombreJugador);
+
         int indiceJ=jugadores.indexOf(j);
         if(indiceJ==-1){
-            throw new NoEstasEnLaPartidaException(this.id, j.getUsuario(), HttpStatus.FORBIDDEN);
+            throw new NoEstasEnLaPartidaException(this.id, nombreJugador, HttpStatus.FORBIDDEN);
         }
         if(indiceJ!=turno){
             throw new NoEsTuTurnoException(jugadores.get(turno));
         }
+
+        int color= jugadores.get(turno).getColor();
+
+
         if(j.llegoAlSubmarino){
             throw new AccionIlegalException("accion","Ya llegaste al submarino, espera a tus compañeros");
         }

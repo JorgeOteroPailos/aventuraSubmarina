@@ -1,4 +1,4 @@
-package gal.etse.ense.aventurasubmarina;
+package gal.etse.ense.aventurasubmarina.Utils;
 
 import com.mongodb.*;
 import com.mongodb.client.*;

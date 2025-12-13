@@ -5,6 +5,7 @@ import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.TokenRefrescoInvalidoE
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.UsuarioExistenteException;
 import gal.etse.ense.aventurasubmarina.Modelo.Usuario;
 import gal.etse.ense.aventurasubmarina.Modelo.UsuarioDTO;
+import gal.etse.ense.aventurasubmarina.Utils.DebugPrint;
 import gal.etse.ense.aventurasubmarina.Servicios.AutenticacionServicio;
 import gal.etse.ense.aventurasubmarina.Servicios.UsuarioServicio;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -52,12 +53,17 @@ public class AutenticacionControlador {
 
     //@PreAuthorize("isAnonymous()")
     public ResponseEntity<Void> iniciarSesion(@RequestBody UsuarioDTO usuario) {
+
+        //TODO ver q coño pasa con la cookie q no va
+
+        DebugPrint.show("Entrando a iniciarSesion en el controlador");
+
         UsuarioDTO loggedUsuario = autenticacion.login(usuario);
         String refreshToken = autenticacion.regenerateTokenRefresco(usuario);
         String refreshPath = MvcUriComponentsBuilder.fromMethodName(AutenticacionControlador.class, "refresh", "").build().toUri().getPath();
 
         ResponseCookie cookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE_NAME, refreshToken)
-                .secure(true)
+                .secure(false) //TODO dice chaty q en local no puede ser true esto
                 .httpOnly(true)
                 .sameSite(Cookie.SameSite.STRICT.toString())
                 .path(refreshPath)
@@ -69,8 +75,6 @@ public class AutenticacionControlador {
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .build();
     }
-
-
 
     @PostMapping("refresh")
     @PreAuthorize("isAuthenticated()")
@@ -91,10 +95,6 @@ public class AutenticacionControlador {
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .build();
     }
-
-
-
-
 
     @PostMapping(
             path = "register",

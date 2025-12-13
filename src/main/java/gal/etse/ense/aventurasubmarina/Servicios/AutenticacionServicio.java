@@ -6,6 +6,7 @@ import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.TokenRefrescoInvalidoE
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.UsuarioNoEncontradoException;
 import gal.etse.ense.aventurasubmarina.Modelo.TokenRefresco;
 import gal.etse.ense.aventurasubmarina.Modelo.UsuarioDTO;
+import gal.etse.ense.aventurasubmarina.Utils.DebugPrint;
 import gal.etse.ense.aventurasubmarina.Repositorio.RolesRepositorio;
 import gal.etse.ense.aventurasubmarina.Repositorio.TokenRefrescoRepositorio;
 import io.jsonwebtoken.Claims;
@@ -73,6 +74,9 @@ public class AutenticacionServicio {
 
     @ConcurrencyLimit(10)
     public UsuarioDTO login(UsuarioDTO usuario) throws AuthenticationException {
+
+        DebugPrint.show("Entrando al login desde contraseña");
+
         Authentication auth = autenticacionManager.authenticate(UsernamePasswordAuthenticationToken.unauthenticated(usuario.username(), usuario.password()));
 
         List<String> roles = auth.getAuthorities()
@@ -94,6 +98,9 @@ public class AutenticacionServicio {
     }
 
     public UsuarioDTO login(String refreshToken) throws TokenRefrescoInvalidoException {
+
+        DebugPrint.show("Entrando a login desde token de refresco");
+
         Optional<TokenRefresco> token = refreshTokenRepositorio.findByToken(refreshToken);
 
         if (token.isPresent()) {
@@ -106,6 +113,9 @@ public class AutenticacionServicio {
     }
 
     public String regenerateTokenRefresco(UsuarioDTO usuario) {
+
+        DebugPrint.show("Entrando a regenerarTokenRefresco");
+
         UUID uuid = UUID.randomUUID();
         TokenRefresco refreshToken = new TokenRefresco(uuid.toString(), usuario.username(), refreshTTL.toSeconds());
         refreshTokenRepositorio.deleteAllByUsuario(usuario.username());

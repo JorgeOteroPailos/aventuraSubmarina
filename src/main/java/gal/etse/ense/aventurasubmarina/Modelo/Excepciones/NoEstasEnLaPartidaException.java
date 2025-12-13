@@ -7,7 +7,7 @@ public class NoEstasEnLaPartidaException extends Exception{
 
     private final String idPartida;
 
-    private final Usuario usuario;
+    private final String nombreJugador;
 
     private final HttpStatus codigoError;
 
@@ -17,13 +17,13 @@ public class NoEstasEnLaPartidaException extends Exception{
 
     public HttpStatus getCodigoError(){return codigoError;}
 
-    public Usuario getUsuario(){
-        return usuario;
+    public String getNombreJugador(){
+        return nombreJugador;
     }
 
-    public NoEstasEnLaPartidaException(String idPartida, Usuario usuario, HttpStatus codigoError){
+    public NoEstasEnLaPartidaException(String idPartida, String nombreJugador, HttpStatus codigoError){
         this.idPartida=idPartida;
-        this.usuario=usuario;
+        this.nombreJugador=nombreJugador;
         this.codigoError=codigoError;
     }
 }

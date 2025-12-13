@@ -3,6 +3,8 @@ package gal.etse.ense.aventurasubmarina.Modelo;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Document(collection = "usuarios")
@@ -39,6 +41,6 @@ public class Usuario{
         return contrasena;
     }
     public Set<Rol> getRoles(){
-        return roles;
+        return Objects.requireNonNullElseGet(roles, HashSet::new);
     }
 }

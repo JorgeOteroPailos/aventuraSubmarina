@@ -4,6 +4,7 @@ import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.*;
 import gal.etse.ense.aventurasubmarina.Modelo.Jugador;
 import gal.etse.ense.aventurasubmarina.Modelo.Partida;
 import gal.etse.ense.aventurasubmarina.Modelo.Usuario;
+import gal.etse.ense.aventurasubmarina.Utils.DebugPrint;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -50,6 +51,9 @@ public class PartidaServicio {
     }
 
     public Partida crearPartida(Usuario dueno) throws JugadorYaAnadidoException{
+
+        DebugPrint.show("Entrando a crear Partida en el servicio");
+
         Partida p =new Partida(crearIdPartida());
         partidasActivas.anadirPartida(p);
         p.anadirJugador(dueno);
@@ -76,6 +80,7 @@ public class PartidaServicio {
 
     public Partida iniciarPartida(String idPartida) throws PartidaNoEncontradaException, PartidaYaIniciadaException {
         Partida p=getPartida(idPartida);
+        //TODO ver q solo la pueda iniciar el creador
         p.iniciar();
         return p;
     }
@@ -86,9 +91,9 @@ public class PartidaServicio {
         return p;
     }
 
-    public Partida accion(String id, String accion, String accion2, Jugador j) throws PartidaNoEncontradaException, NoEsTuTurnoException, AccionIlegalException, NoEstasEnLaPartidaException, SintaxisIncorrectaException {
+    public Partida accion(String id, String accion, String accion2, String jugador) throws PartidaNoEncontradaException, NoEsTuTurnoException, AccionIlegalException, NoEstasEnLaPartidaException, SintaxisIncorrectaException {
         Partida p=getPartida(id);
-        p.accion(accion,accion2,j);
+        p.accion(accion,accion2,jugador);
         return p;
     }
 

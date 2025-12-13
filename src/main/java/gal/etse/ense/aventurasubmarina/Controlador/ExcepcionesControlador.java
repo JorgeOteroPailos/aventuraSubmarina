@@ -22,6 +22,16 @@ public class ExcepcionesControlador extends ResponseEntityExceptionHandler {
         return ErrorResponse.builder(ex, error).build();
     }
 
+    @ExceptionHandler(UsuarioExistenteException.class)
+    public ErrorResponse handle(UsuarioExistenteException ex){
+        ProblemDetail error = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        error.setDetail("Ya existe un usuario con identificador "+ex.getUser().getNombre() +". El identificador de usuario debe ser único, utiliza otro" );
+        error.setType(MvcUriComponentsBuilder.fromController(ExcepcionesControlador.class).pathSegment("error", "usuario-ya-existente").build().toUri());
+        error.setTitle("Usuario ya existente");
+
+        return ErrorResponse.builder(ex, error).build();
+    }
+
     @ExceptionHandler(JugadorNoEncontradoException.class)
     public ErrorResponse handle(JugadorNoEncontradoException ex){
         ProblemDetail error = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
@@ -55,7 +65,7 @@ public class ExcepcionesControlador extends ResponseEntityExceptionHandler {
     @ExceptionHandler(NoEstasEnLaPartidaException.class)
     public ErrorResponse handle(NoEstasEnLaPartidaException ex){
         ProblemDetail error = ProblemDetail.forStatus(ex.getCodigoError());
-        error.setDetail("El usuario con identificador="+ex.getUsuario().getNombre()+" no se encuentra en la partida con identificador="+ex.getIdPartida());
+        error.setDetail("El usuario con identificador="+ex.getNombreJugador()+" no se encuentra en la partida con identificador="+ex.getIdPartida());
         error.setType(MvcUriComponentsBuilder.fromController(ExcepcionesControlador.class).pathSegment("error", "no-estas-en-la-partida").build().toUri());
         error.setTitle("No estás en la partida");
         return ErrorResponse.builder(ex, error).build();

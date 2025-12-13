@@ -1,5 +1,6 @@
 package gal.etse.ense.aventurasubmarina.Configuracion;
 
+import gal.etse.ense.aventurasubmarina.Filtros.FiltroJWT;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -12,6 +13,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 @EnableWebSecurity
 public class SeguridadConfiguracion {
 
+    private final FiltroJWT filtroJWT;
+
+    public SeguridadConfiguracion(FiltroJWT filtroJWT) {
+        this.filtroJWT = filtroJWT;
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
@@ -23,14 +30,16 @@ public class SeguridadConfiguracion {
                 )
 
                 .authorizeHttpRequests(auth -> auth
-
-                        // ✅ Público (sin login)
+                        // Público
                         .requestMatchers("/autenticacion/login").permitAll()
                         .requestMatchers("/autenticacion/register").permitAll()
                         .requestMatchers("/autenticacion/refresh").permitAll()
 
                         .anyRequest().authenticated()
                 )
+
+
+                .addFilterBefore(filtroJWT, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
 
                 .httpBasic(AbstractHttpConfigurer::disable)
 

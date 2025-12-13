@@ -13,7 +13,7 @@ public record UsuarioDTO (
         Set<String> roles
 ) {
     public static UsuarioDTO from(gal.etse.ense.aventurasubmarina.Modelo.Usuario user) {
-        return new UsuarioDTO(user.getNombre(), user.getContrasena(), user.getRoles().stream().map(Rol::getRolename).collect(Collectors.toSet()));
+        return new UsuarioDTO(user.getNombre(), user.getContrasena(), (user.getRoles()==null?null:user.getRoles().stream().map(Rol::getRolename).collect(Collectors.toSet())));
     }
 
     public interface Views {

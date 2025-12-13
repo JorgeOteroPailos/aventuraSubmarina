@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -18,11 +19,16 @@ import java.util.Optional;
 @NullMarked
 @Service
 public class UsuarioServicio implements UserDetailsService {
+
     private final UsuarioRepositorio usuarioRepositorio;
 
 
-    public UsuarioServicio(UsuarioRepositorio usuarioRepositorio) {
+    private final PasswordEncoder passwordEncoder;
+
+    public UsuarioServicio(UsuarioRepositorio usuarioRepositorio,
+                           PasswordEncoder passwordEncoder) {
         this.usuarioRepositorio = usuarioRepositorio;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public Usuario crearUsuario(Usuario u) throws UsuarioExistenteException {
@@ -31,9 +37,10 @@ public class UsuarioServicio implements UserDetailsService {
             throw new UsuarioExistenteException(dbUser.get());
         }
 
-        //Role userRole = roleRepository.findByRolename("USER");
+        u.setContrasena(passwordEncoder.encode(u.getContrasena()));
         return usuarioRepositorio.save(u);
     }
+
 
     public boolean eliminarPorId(String id){
 
@@ -62,7 +69,16 @@ public class UsuarioServicio implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String nombre) throws UsernameNotFoundException {
-        return (UserDetails) usuarioRepositorio.findUsuarioByNombre(nombre).orElseThrow(() -> new UsernameNotFoundException(nombre));
+
+        Usuario usuario = usuarioRepositorio.findUsuarioByNombre(nombre)
+                .orElseThrow(() -> new UsernameNotFoundException(nombre));
+
+        return org.springframework.security.core.userdetails.User
+                .withUsername(usuario.getNombre())
+                .password(usuario.getContrasena())
+                .roles("USER")
+                .build();
     }
+
 
 }
