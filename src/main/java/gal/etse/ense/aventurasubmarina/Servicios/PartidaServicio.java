@@ -1,13 +1,14 @@
 package gal.etse.ense.aventurasubmarina.Servicios;
 
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.*;
-import gal.etse.ense.aventurasubmarina.Modelo.Jugador;
 import gal.etse.ense.aventurasubmarina.Modelo.Partida;
 import gal.etse.ense.aventurasubmarina.Modelo.Usuario;
 import gal.etse.ense.aventurasubmarina.Utils.DebugPrint;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -15,8 +16,11 @@ import java.util.concurrent.ThreadLocalRandom;
 @Service
 public class PartidaServicio {
 
-    public void abandonarPartida(String idPartida, String idJugador) throws PartidaNoEncontradaException {
+    public void abandonarPartida(String idPartida, String idJugador, Authentication autenticacion) throws PartidaNoEncontradaException, NoEstasEnLaPartidaException {
         Partida p = getPartida(idPartida);
+        if(!Objects.equals(idJugador, autenticacion.getName())){
+            throw new SuplantacionException(idJugador,autenticacion.getName());
+        }
         p.abandonarPartida(idJugador);
     }
 
@@ -78,14 +82,19 @@ public class PartidaServicio {
         return partidasActivas.getPartida(idPartida);
     }
 
-    public Partida iniciarPartida(String idPartida) throws PartidaNoEncontradaException, PartidaYaIniciadaException {
+    public Partida iniciarPartida(String idPartida, Usuario usuario) throws PartidaNoEncontradaException, PartidaYaIniciadaException {
         Partida p=getPartida(idPartida);
-        //TODO ver q solo la pueda iniciar el creador
+
+        if(!Objects.equals(p.getJugadorInicial().getUsuario().getNombre(), usuario.getNombre())){
+            throw new NoEresElCreadorException();
+        }
+
         p.iniciar();
         return p;
     }
 
     public Partida anadirJugador(String idPartida, Usuario u) throws PartidaNoEncontradaException, JugadorYaAnadidoException {
+
         Partida p = getPartida(idPartida);
         p.anadirJugador(u);
         return p;
@@ -97,9 +106,6 @@ public class PartidaServicio {
         return p;
     }
 
-    public void finalizarPartida() throws PartidaNoEncontradaException{
-        //TODO
-    }
 
 
 }

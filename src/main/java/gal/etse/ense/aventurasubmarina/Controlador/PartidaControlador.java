@@ -25,17 +25,15 @@ public class PartidaControlador {
     }
 
     @PostMapping
-    public ResponseEntity<Partida> crearPartida(@RequestBody Usuario usuario) throws JugadorYaAnadidoException {
+    public ResponseEntity<Partida> crearPartida(Authentication autenticacion) throws JugadorYaAnadidoException {
 
-        //TODO tontorrón: Nos deja crear una partida aunque no seamos el del token que creamos
-
-        Partida partidaCreada = partidaServicio.crearPartida(usuario);
+        Partida partidaCreada = partidaServicio.crearPartida(new Usuario(autenticacion.getName()));
         return new ResponseEntity<>(partidaCreada, HttpStatus.CREATED);
     }
 
     @PatchMapping("/{id}/jugadores")
-    public ResponseEntity<Partida> unirseAPartida(@PathVariable String id, @RequestBody Usuario usuario) throws PartidaNoEncontradaException, JugadorYaAnadidoException {
-        Partida p = partidaServicio.anadirJugador(id, usuario);
+    public ResponseEntity<Partida> unirseAPartida(@PathVariable String id, Authentication autenticacion) throws PartidaNoEncontradaException, JugadorYaAnadidoException {
+        Partida p = partidaServicio.anadirJugador(id, new Usuario(autenticacion.getName()));
         return new ResponseEntity<>(p, HttpStatus.OK);
     }
 
@@ -48,7 +46,7 @@ public class PartidaControlador {
         System.out.println("Entrando a getEstadoPartida");
 
         Partida p = partidaServicio.getPartida(id);
-        if (selloTemporal != null && !p.getMarcaTemporal().equals(selloTemporal)) {
+        if (!p.getMarcaTemporal().equals(selloTemporal)) {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
         }
 
@@ -56,23 +54,24 @@ public class PartidaControlador {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Partida> iniciarPartida(@PathVariable String id) throws PartidaNoEncontradaException, PartidaYaIniciadaException {
+    public ResponseEntity<Partida> iniciarPartida(@PathVariable String id, Authentication autenticacion) throws PartidaNoEncontradaException, PartidaYaIniciadaException {
 
         System.out.println("Entrando a iniciarPartida");
 
-        Partida p = partidaServicio.iniciarPartida(id);
+        Partida p = partidaServicio.iniciarPartida(id, new Usuario(autenticacion.getName()));
         return new ResponseEntity<>(p, HttpStatus.OK);
     }
 
     @DeleteMapping("/{idPartida}/jugadores/{idJugador}")
     public ResponseEntity<Void> abandonarPartida(
             @PathVariable String idPartida,
-            @PathVariable String idJugador)
+            @PathVariable String idJugador,
+            Authentication autenticacion)
             throws PartidaNoEncontradaException, NoEstasEnLaPartidaException {
 
         System.out.println("Entrando a abandonarPartida");
 
-        partidaServicio.abandonarPartida(idPartida, idJugador);
+        partidaServicio.abandonarPartida(idPartida, idJugador, autenticacion);
         return ResponseEntity.ok().build();
     }
 
