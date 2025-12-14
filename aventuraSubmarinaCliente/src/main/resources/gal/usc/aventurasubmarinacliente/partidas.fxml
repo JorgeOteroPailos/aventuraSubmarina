@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="gal.usc.aventurasubmarinacliente.Controladores.PartidasController"
+            fx:id="root"
+            styleClass="root">
+
+    <!-- ===== MENÚ LATERAL ===== -->
+    <left>
+        <VBox fx:id="sidebar"
+              spacing="15"
+              alignment="TOP_CENTER"
+              styleClass="sidebar"
+              prefWidth="180">
+
+            <Label text="Partidas"
+                   fx:id="lblPartidasMenu"
+                   styleClass="sidebar-title"/>
+
+            <Button text="Eventos"
+                    fx:id="btnEventos"
+                    styleClass="sidebar-button"/>
+
+            <Button text="Cerrar sesión"
+                    fx:id="btnCerrarSesion"
+                    onAction="#onCerrar"
+                    styleClass="sidebar-button"/>
+
+            <Button text="Ayuda"
+                    fx:id="btnAyuda"
+                    styleClass="sidebar-button"/>
+
+        </VBox>
+    </left>
+
+    <!-- ===== BARRA SUPERIOR ===== -->
+    <top>
+        <HBox fx:id="topBar"
+              alignment="CENTER_RIGHT"
+              styleClass="top-bar">
+
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+
+            <Button text="Cuenta"
+                    fx:id="btnCuenta"
+                    onAction="#onCuenta"
+                    styleClass="account-button"/>
+        </HBox>
+
+    </top>
+
+    <!-- ===== CONTENIDO CENTRAL ===== -->
+    <center>
+        <VBox fx:id="content"
+              alignment="CENTER"
+              spacing="30"
+              styleClass="content">
+
+            <Label text="Partidas"
+                   fx:id="lblTitulo"
+                   styleClass="title"/>
+
+            <HBox spacing="40"
+                  alignment="CENTER"
+                  fx:id="actions"
+                  styleClass="actions">
+
+                <Button text="Unirse"
+                        fx:id="btnUnirse"
+                        onAction="#onUnirse"
+                        styleClass="primary-button"/>
+
+                <Button text="Crear"
+                        fx:id="btnCrear"
+                        onAction="#onCrear"
+                        styleClass="secondary-button"/>
+
+            </HBox>
+        </VBox>
+    </center>
+
+</BorderPane>

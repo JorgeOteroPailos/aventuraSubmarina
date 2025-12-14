@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="GradleMigrationSettings" migrationVersion="1" />
+  <component name="GradleSettings">
+    <option name="linkedExternalProjectsSettings">
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/aventuraSubmarina" />
+        <option name="gradleJvm" value="21 (2)" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/aventuraSubmarina" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/aventuraSubmarinaCliente" />
+        <option name="gradleJvm" value="21 (2)" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/aventuraSubmarinaCliente" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/rest-example-master" />
+        <option name="gradleJvm" value="21 (2)" />
+      </GradleProjectSettings>
+    </option>
+  </component>
+</project>
