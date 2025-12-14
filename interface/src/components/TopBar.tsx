@@ -48,10 +48,10 @@ export function TopBar() {
             >
               <Avatar className="w-8 h-8">
                 <AvatarFallback className="bg-primary text-primary-foreground">
-                  {user ? getInitials(user.name) : 'U'}
+                  {user ? getInitials(user.username) : 'U'}
                 </AvatarFallback>
               </Avatar>
-              <span className="hidden md:inline font-normal">{user?.name || 'Usuario'}</span>
+              <span className="hidden md:inline font-normal">{user?.username || 'Usuario'}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56 bg-popover text-popover-foreground">
