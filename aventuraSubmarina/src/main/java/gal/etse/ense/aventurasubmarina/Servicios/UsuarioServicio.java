@@ -31,15 +31,18 @@ public class UsuarioServicio implements UserDetailsService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public Usuario crearUsuario(Usuario u) throws UsuarioExistenteException {
+    public Usuario crearUsuario(UsuarioDTO u) throws UsuarioExistenteException {
 
-        var dbUser = usuarioRepositorio.findUsuarioByNombre(u.getNombre());
+        var dbUser = usuarioRepositorio.findUsuarioByNombre(u.username());
         if (dbUser.isPresent()) {
             throw new UsuarioExistenteException(dbUser.get());
         }
 
-        u.setContrasena(passwordEncoder.encode(u.getContrasena()));
-        return usuarioRepositorio.save(u);
+        String password=(passwordEncoder.encode(u.password()));
+        Usuario u2=new Usuario(u.username());
+        u2.setContrasena(password);
+
+        return usuarioRepositorio.save(u2);
     }
 
 

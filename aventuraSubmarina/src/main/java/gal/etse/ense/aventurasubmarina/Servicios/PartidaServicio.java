@@ -85,7 +85,7 @@ public class PartidaServicio {
     public Partida iniciarPartida(String idPartida, Usuario usuario) throws PartidaNoEncontradaException, PartidaYaIniciadaException {
         Partida p=getPartida(idPartida);
 
-        if(!Objects.equals(p.getJugadorInicial().getUsuario().username(), usuario.getNombre())){
+        if(!Objects.equals(p.getJugadores().getFirst().getUsuario().username(), usuario.getNombre())){
             throw new NoEresElCreadorException();
         }
 

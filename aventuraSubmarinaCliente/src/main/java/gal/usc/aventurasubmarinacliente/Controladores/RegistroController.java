@@ -9,6 +9,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -19,7 +20,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.HashSet;
 import java.util.Optional;
 
 public class RegistroController {
@@ -69,15 +69,14 @@ public class RegistroController {
             if (res.statusCode() > 199 && res.statusCode() < 400) {
                 System.out.println("Usuario creado: " + u + ", con código de respuesta " + res.statusCode());
 
-                Optional<String> auth = res.headers().firstValue("Authorization");
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Éxito!!");
+                alert.setHeaderText(null); // o un texto corto
+                alert.setContentText("Usuario creado correctamente! Volviendo al inicio de sesión");
 
-                if (auth.isEmpty()) {
-                    throw new RuntimeException("No llegó token Authorization");
-                }
+                alert.showAndWait();
 
-                Estado.token = auth.get().replace("Bearer ", "");
-                Estado.usuario = u;
-                PrincipalController.abrirVentanaPrincipal();
+                LoginController.abrirLogin();
                 cerrar();
             }else{
                 System.out.println("Error al guardar usuario: " + res.statusCode());

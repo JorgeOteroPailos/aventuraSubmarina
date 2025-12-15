@@ -2,13 +2,12 @@ package gal.usc.aventurasubmarinacliente.Controladores;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gal.usc.aventurasubmarinacliente.Estado;
-import gal.usc.aventurasubmarinacliente.modelo.HttpClientProvider;
-import gal.usc.aventurasubmarinacliente.modelo.Jugador;
-import gal.usc.aventurasubmarinacliente.modelo.Partida;
+import gal.usc.aventurasubmarinacliente.modelo.*;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
@@ -29,6 +28,7 @@ public class PartidaController {
 
     private static final int TOTAL_CASILLAS = 41;
     private static final double CASILLA_SIZE = 40;
+
 
     private final List<StackPane> casillas = new ArrayList<>();
 
@@ -93,7 +93,10 @@ public class PartidaController {
     private HBox bottomPanel;
 
     @FXML
-    private TextField txtDado;
+    private TextField lblDado;
+
+    @FXML
+    private ScrollPane scrollBoard;
 
     @FXML
     private Button btnDado;
@@ -117,8 +120,11 @@ public class PartidaController {
     private Button btnSiguiente;
 
     @FXML
+    private Button btnIniciarPartida;
+
+    @FXML
     private void onSalir() {
-        String url=Estado.BASE_URL + "/partidas/" + Estado.partida.id() + "/jugadores/" + Estado.usuario.nombre();
+        String url=Estado.BASE_URL + "/partidas/" + Estado.partida.id() + "/jugadores/" + Estado.usuario.username();
 
         try {
             HttpRequest req = HttpRequest.newBuilder()
@@ -148,8 +154,9 @@ public class PartidaController {
 
     @FXML
     private void onLanzarDado() {
-        if(Estado.partida.jugadores().get(Estado.partida.turno()).usuario().nombre().equals(Estado.usuario.nombre())){
-            txtDado.setText("[" + Estado.partida.dado1() + ", " + Estado.partida.dado2() + "] = " + Estado.partida.dado1()+Estado.partida.dado2());
+        if(Estado.partida.jugadores().get(Estado.partida.turno()).usuario().username().equals(Estado.usuario.username())){
+            int tirada=Estado.partida.dado1()+Estado.partida.dado2();
+            lblDado.setText("[" + Estado.partida.dado1() + ", " + Estado.partida.dado2() + "] = " + tirada);
             btnDado.setDisable(true);
         }
         System.out.println("Lanzar dado");
@@ -195,21 +202,124 @@ public class PartidaController {
 
     @FXML
     private void onSiguiente() {
+
+        //TODO enviar la acción y que haya, de alguna manera, feedback
+
+        Accion accion=new Accion("","");
+
+        if(toggleSubir.isSelected()&&toggleNada.isSelected()){
+            accion=new Accion("nada","subir");
+        }else if(toggleSubir.isSelected()&&toggleCoger.isSelected()){
+            accion=new Accion("coger","subir");
+        }else if(toggleSubir.isSelected()&&toggleDejar.isSelected()){
+            accion=new Accion("dejar","subir");
+        }else if(toggleBajar.isSelected()&&toggleNada.isSelected()){
+            accion=new Accion("nada","bajar");
+        }else if(toggleBajar.isSelected()&&toggleCoger.isSelected()){
+            accion=new Accion("coger","bajar");
+        }else if(toggleBajar.isSelected()&&toggleDejar.isSelected()){
+            accion=new Accion("dejar","bajar");
+        }
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            String jsonAccion = mapper.writeValueAsString(accion);
+
+            String url=Estado.BASE_URL + "/partidas/" + Estado.partida.id();
+
+            HttpRequest req = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .method("PATCH", HttpRequest.BodyPublishers.ofString(jsonAccion))
+                    .header("Authorization", "Bearer " + Estado.token)
+                    .build();
+
+            HttpResponse<String> res = HttpClientProvider.send(req);
+
+            if (res.statusCode() > 199 && res.statusCode() < 300) {
+
+                Partida p = mapper.readValue(res.body(), Partida.class);
+
+                System.out.println("Se ha enviado la accion "+accion+" a la partida:");
+                System.out.println(p);
+
+                Estado.partida = p;
+
+
+            } else {
+                System.out.println("Error al mandar accion "+accion+" a la partida: " + Estado.partida.id() + " " + res.statusCode());
+                System.out.println("Cuerpo del error: " + res.body());
+
+
+                System.out.println("STATUS=" + res.statusCode());
+                System.out.println("BODY=" + res.body());
+                System.out.println("HEADERS=" + res.headers().map());
+
+            }
+
+            System.out.println("Iniciar partida");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+
+
         System.out.println("Siguiente turno");
     }
 
     @FXML
-    private ScrollPane scrollBoard; // Añade este campo
+    private void onIniciarPartida(){
+
+        try {
+            String url=Estado.BASE_URL + "/partidas/" + Estado.partida.id();
+
+            HttpRequest req = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .method("PATCH", HttpRequest.BodyPublishers.noBody())
+                    .header("Authorization", "Bearer " + Estado.token)
+                    .build();
+
+            HttpResponse<String> res = HttpClientProvider.send(req);
+
+            if (res.statusCode() > 199 && res.statusCode() < 300) {
+
+                //if(res.statusCode()!=HttpStatus.NOT_MODIFIED){
+                //No se mirarlo
+                //}
+
+                Partida p = mapper.readValue(res.body(), Partida.class);
+
+                System.out.println("Se ha iniciado la partida:");
+                System.out.println(p);
+
+                Estado.partida = p;
+
+
+            } else {
+                System.out.println("Error al iniciar la partida: " + Estado.partida.id() + " " + res.statusCode());
+                System.out.println("Cuerpo del error: " + res.body());
+
+
+                System.out.println("STATUS=" + res.statusCode());
+                System.out.println("BODY=" + res.body());
+                System.out.println("HEADERS=" + res.headers().map());
+
+            }
+
+            System.out.println("Iniciar partida");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     @FXML
     private void initialize() {
-        txtDado.setEditable(false);
-        btnCuenta.setText(Estado.usuario.nombre());
+        btnCuenta.setText(Estado.usuario.username());
 
         labels = Arrays.asList(lblJugador1Score,lblJugador2Score,lblJugador3Score,lblJugador4Score,lblJugador5Score,lblJugador6Score);
 
         for(Jugador j : Estado.partida.jugadores())
-            if(j.usuario().nombre().equals(Estado.usuario.nombre())) jugador=j;
+            if(j.usuario().username().equals(Estado.usuario.username())) jugador=j;
 
         crearTablero();
         Timeline timeline = new Timeline(
@@ -260,8 +370,8 @@ public class PartidaController {
 
     private void actualizarDatos(){
 
-        if(!Estado.partida.empezada()||!Estado.partida.jugadores().get(Estado.partida.turno()).usuario().nombre().equals(Estado.usuario.nombre())){
-            txtDado.setText(" ");
+        if(!Estado.partida.empezada()||!Estado.partida.jugadores().get(Estado.partida.turno()).usuario().username().equals(Estado.usuario.username())){
+            lblDado.setText(" ");
             btnDado.setDisable(true);
             toggleSubir.setDisable(true);
             toggleBajar.setDisable(true);
@@ -279,11 +389,9 @@ public class PartidaController {
             btnSiguiente.setDisable(false);
         }
 
-        if(!(txtDado.getText().equals(" "))&&(toggleBajar.isSelected()||toggleSubir.isSelected())&&(toggleCoger.isSelected()||toggleDejar.isSelected()||toggleNada.isSelected())){
-            btnSiguiente.setDisable(false);
-        }else{
-            btnSiguiente.setDisable(true);
-        }
+        btnIniciarPartida.setVisible(Estado.partida.jugadores().getFirst().usuario().username().equals(Estado.usuario.username()));
+
+        btnSiguiente.setDisable(lblDado.getText().equals(" ") || (!toggleBajar.isSelected() && !toggleSubir.isSelected()) || (!toggleCoger.isSelected() && !toggleDejar.isSelected() && !toggleNada.isSelected()));
 
         try {
 
@@ -326,13 +434,37 @@ public class PartidaController {
 
             }
 
-            lblTurnoJugador.setText(Estado.partida.jugadores().get(Estado.partida.turno()).usuario().nombre());
+            lblTurnoJugador.setText(Estado.partida.jugadores().get(Estado.partida.turno()).usuario().username());
             lblTesoros.setText(String.valueOf(jugador.tesorosCargando().size()));
             lblRonda.setText(String.valueOf((Estado.partida.contadorRondas())));
 
             for (int i = 0; i < Estado.partida.jugadores().size(); i++) {
-                labels.get(i).setText(Estado.partida.jugadores().get(i).usuario().nombre() + ": " + Estado.partida.jugadores().get(i).puntosGanados());
+                labels.get(i).setText(Estado.partida.jugadores().get(i).usuario().username() + ": " + Estado.partida.jugadores().get(i).puntosGanados());
             }
+
+            for(int i=0;i<Estado.partida.tablero().casillas().size();i++){
+                Jugador j=Estado.partida.tablero().casillas().get(i).jugadorPresenteDTO();
+
+                if(j!=null){
+                    ImageView ficha = new ImageView();
+                    ficha.setUserData("ficha");//TODO
+                    ficha.setFitWidth(30);
+                    ficha.setFitHeight(30);
+                    ficha.setPreserveRatio(true);
+                    casillas.get(i).getChildren().add(ficha);
+                }else{
+                    casillas.get(i).getChildren().removeIf(
+                            node -> "ficha".equals(node.getUserData())
+                    );
+                    /*Nota para el Jorge del futuro:
+                    *
+                    * Ahora mismo, esto no funciona con la casilla 0, en la q puede haber vario sjugadores
+                    * Creo q lo mejor es dibujar esa por separado*/
+
+
+                }
+            }
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -99,10 +99,10 @@ public class AutenticacionControlador {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
 
-    public ResponseEntity<Usuario> register(@RequestBody Usuario usuario) throws UsuarioExistenteException {
+    public ResponseEntity<Usuario> register(@RequestBody UsuarioDTO usuario) throws UsuarioExistenteException {
         Usuario createdUsuario = usuarios.crearUsuario(usuario);
 
-        return ResponseEntity.created(MvcUriComponentsBuilder.fromMethodName(UsuariosControlador.class, "getUsuario", usuario.getNombre()).build().toUri())
+        return ResponseEntity.created(MvcUriComponentsBuilder.fromMethodName(UsuariosControlador.class, "getUsuario", usuario.username()).build().toUri())
                 .body(createdUsuario);
     }
 }

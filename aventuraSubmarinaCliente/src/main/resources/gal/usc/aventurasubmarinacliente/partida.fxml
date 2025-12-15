@@ -61,6 +61,12 @@
 
             <Separator />
 
+            <Button text="Iniciar partida"
+                    fx:id="btnIniciarPartida"
+                    onAction="#onIniciarPartida"
+                    styleClass="account-button"
+            />
+
             <Label text="Turno:"
                    styleClass="info-label"/>
             <Label text="Jugador1"
@@ -128,11 +134,9 @@
 
             <!-- Dado -->
             <VBox alignment="CENTER" spacing="5">
-                <TextField fx:id="txtDado"
-                           promptText="Resultado dado"
-                           maxWidth="60"
-                           editable="false"
-                           styleClass="dice-textfield"/>
+                <Label fx:id="lblDado"
+                        text="Turno:"
+                       styleClass="info-label"/>
 
                 <Button fx:id="btnDado"
                         text="🎲"

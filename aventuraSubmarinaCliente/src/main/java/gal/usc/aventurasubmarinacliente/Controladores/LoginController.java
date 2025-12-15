@@ -56,7 +56,10 @@ public class LoginController {
                 Optional<String> auth = res.headers().firstValue("Authorization");
 
                 if (auth.isEmpty()) {
+                    res.headers().map().keySet().forEach(System.out::println);
                     throw new RuntimeException("No llegó token Authorization");
+                }else{
+                    System.out.println("Hola?");
                 }
 
                 Estado.token = auth.get().replace("Bearer ", "");

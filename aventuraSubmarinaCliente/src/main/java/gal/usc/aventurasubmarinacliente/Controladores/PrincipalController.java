@@ -74,10 +74,10 @@ public class PrincipalController {
 
     @FXML
     private void initialize() {
-        btnCuenta.setText(Estado.usuario.nombre());
+        btnCuenta.setText(Estado.usuario.username());
         mapper.registerModule(new JavaTimeModule());
 
-        System.out.println(Estado.usuario.nombre());
+        System.out.println(Estado.usuario.username());
         // Preparado para lógica futura
         // Aquí luego podrás añadir listeners, navegación, etc.
     }

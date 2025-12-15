@@ -19,7 +19,7 @@
                 <Insets top="10" right="10" bottom="10" left="10"/>
             </padding>
 
-            <Button text="← Volver"
+            <Button text="Volver"
                     fx:id="btnVolver"
                     onAction="#onVolver"
                     styleClass="secondary-button"/>
@@ -35,6 +35,9 @@
             <Label text="Perfil"
                    fx:id="lblTitulo"
                    styleClass="title"/>
+
+            <Label fx:id="lblNombreUsuario"
+                   styleClass="subtitle"/>
 
             <Button text="Borrar perfil"
                     fx:id="btnBorrarPerfil"

@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
@@ -20,18 +21,26 @@ public class PerfilController {
     private BorderPane root;
 
     @FXML
+    private Label lblNombreUsuario;
+
+
+    @FXML
+    public void initialize() {
+        lblNombreUsuario.setText("Nombre: " + Estado.usuario.username());
+    }
+
+    @FXML
     public void onVolver() throws IOException {
         PrincipalController.abrirVentanaPrincipal();
 
         Stage actual = (Stage) root.getScene().getWindow();
         actual.close();
-
     }
 
     @FXML
     public void onBorrarPerfil(){
         HttpRequest req = HttpRequest.newBuilder()
-                .uri(URI.create(Estado.BASE_URL + "/usuarios/"+Estado.usuario.nombre()))
+                .uri(URI.create(Estado.BASE_URL + "/usuarios/"+Estado.usuario.username()))
                 .DELETE()
                 .build();
 
