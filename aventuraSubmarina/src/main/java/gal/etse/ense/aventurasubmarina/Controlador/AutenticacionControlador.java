@@ -54,8 +54,6 @@ public class AutenticacionControlador {
     //@PreAuthorize("isAnonymous()")
     public ResponseEntity<Void> iniciarSesion(@RequestBody UsuarioDTO usuario) {
 
-        //TODO ver q coño pasa con la cookie q no va
-
         DebugPrint.show("Entrando a iniciarSesion en el controlador");
 
         UsuarioDTO loggedUsuario = autenticacion.login(usuario);
@@ -100,7 +98,7 @@ public class AutenticacionControlador {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    @PreAuthorize("isAnonymous()")
+
     public ResponseEntity<Usuario> register(@RequestBody Usuario usuario) throws UsuarioExistenteException {
         Usuario createdUsuario = usuarios.crearUsuario(usuario);
 

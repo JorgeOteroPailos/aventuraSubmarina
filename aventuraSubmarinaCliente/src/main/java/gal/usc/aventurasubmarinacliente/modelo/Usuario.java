@@ -5,9 +5,9 @@ import java.util.Set;
 
 public record Usuario (
         @JsonView(Views.Public.class)
-        String username,
+        String nombre,
         @JsonView(Views.Private.class)
-        String password,
+        String contrasena,
         @JsonView(Views.Private.class)
         Set<String> roles
 ) {

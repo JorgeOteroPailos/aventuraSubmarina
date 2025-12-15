@@ -32,6 +32,7 @@ public class UsuarioServicio implements UserDetailsService {
     }
 
     public Usuario crearUsuario(Usuario u) throws UsuarioExistenteException {
+
         var dbUser = usuarioRepositorio.findUsuarioByNombre(u.getNombre());
         if (dbUser.isPresent()) {
             throw new UsuarioExistenteException(dbUser.get());

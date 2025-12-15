@@ -72,17 +72,11 @@ public final class HttpClientProvider {
     private static HttpRequest maybeWithAuth(HttpRequest req) {
         String token = Estado.token;
 
-        // Login / primeira vez → non tocar
-        if (token == null || token.isBlank()) {
-            return req;
-        }
-
-        // 1. Construir el nuevo request
         HttpRequest.Builder builder = HttpRequest.newBuilder(req.uri())
                 .method(req.method(),
                         req.bodyPublisher().orElse(HttpRequest.BodyPublishers.noBody()));
 
-        // 2. Copiar todos los headers EXISTENTES del request original
+        // Copiar headers existentes
         Map<String, List<String>> existingHeaders = req.headers().map();
         for (Map.Entry<String, List<String>> entry : existingHeaders.entrySet()) {
             for (String value : entry.getValue()) {
@@ -90,8 +84,20 @@ public final class HttpClientProvider {
             }
         }
 
-        // 3. Añadir header Authorization
-        builder.header("Authorization", "Bearer " + token.trim());
+        // Añadir Authorization si hay token
+        if (token != null && !token.isBlank()) {
+            builder.header("Authorization", "Bearer " + token.trim());
+        }
+
+        // 👉 Añadir Content-Type: application/json si hay body y no está definido
+        boolean hasBody = req.bodyPublisher().isPresent();
+        boolean hasContentType = req.headers()
+                .firstValue("Content-Type")
+                .isPresent();
+
+        if (hasBody && !hasContentType) {
+            builder.header("Content-Type", "application/json");
+        }
 
         return builder.build();
     }

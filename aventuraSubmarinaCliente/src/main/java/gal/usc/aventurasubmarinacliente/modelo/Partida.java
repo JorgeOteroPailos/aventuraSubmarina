@@ -1,7 +1,5 @@
 package gal.usc.aventurasubmarinacliente.modelo;
 
-import java.time.Instant;
-import java.util.BitSet;
 import java.util.List;
 
 public record Partida(
@@ -23,7 +21,7 @@ public record Partida(
         int dado2,
 
         // Tiempo
-        Instant marcaTemporal,
+        int marcaTemporal,
 
         // Juego
         Tablero tablero,

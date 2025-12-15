@@ -1,6 +1,5 @@
 package gal.usc.aventurasubmarinacliente.Controladores;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import gal.usc.aventurasubmarinacliente.Estado;
@@ -15,6 +14,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -25,7 +25,6 @@ import java.net.http.HttpResponse;
 public class PrincipalController {
     private final ObjectMapper mapper = new ObjectMapper();
 
-    String jsonUsuario = mapper.writeValueAsString(Estado.usuario);
 
     // Root
     @FXML
@@ -70,14 +69,15 @@ public class PrincipalController {
     @FXML
     private Button btnCrear;
 
-    public PrincipalController() throws JsonProcessingException {
+    public PrincipalController() {
     }
 
     @FXML
     private void initialize() {
+        btnCuenta.setText(Estado.usuario.nombre());
         mapper.registerModule(new JavaTimeModule());
 
-        System.out.println(Estado.usuario.username());
+        System.out.println(Estado.usuario.nombre());
         // Preparado para lógica futura
         // Aquí luego podrás añadir listeners, navegación, etc.
     }
@@ -86,14 +86,14 @@ public class PrincipalController {
     private void onUnirse() {
         System.out.println("Unirse a partida");
 
-        String idPartida="HOLA"; //TODO
-
-        HttpRequest req = HttpRequest.newBuilder()
-                .uri(URI.create(Estado.BASE_URL + "/partidas/"+idPartida+"/jugadores"))
-                .method("PATCH", HttpRequest.BodyPublishers.noBody())
-                .build();
-
         try {
+            String idPartida=mostrarDialogoUnirse();
+
+            HttpRequest req = HttpRequest.newBuilder()
+                    .uri(URI.create(Estado.BASE_URL + "/partidas/"+idPartida+"/jugadores"))
+                    .method("PATCH", HttpRequest.BodyPublishers.noBody())
+                    .build();
+
             HttpResponse<String> res = HttpClientProvider.send(req);
 
             if (res.statusCode() > 199 && res.statusCode()<400) {
@@ -103,11 +103,13 @@ public class PrincipalController {
                 System.out.println("Te has unido a la partida:");
                 System.out.println(p);
 
-                //TODO cambiar a ventanaPartida
+                Estado.partida=p;
 
+                abrirVentanaPartida(p.id());
+                cerrar();
 
             } else {
-                System.out.println("Error al crear una partida: " + res.statusCode());
+                System.out.println("Error unirse a una partida: " + res.statusCode());
                 System.out.println("Cuerpo del error: " + res.body());
 
 
@@ -146,6 +148,8 @@ public class PrincipalController {
 
                 abrirVentanaPartida(p.id());
 
+                cerrar();
+
             } else {
                 System.out.println("Error al crear una partida: " + res.statusCode());
                 System.out.println("Cuerpo del error: " + res.body());
@@ -162,8 +166,18 @@ public class PrincipalController {
 
     }
 
+    private void cerrar(){
+        // (Opcional) cerrar la ventana actual
+        Stage actual = (Stage) btnCuenta.getScene().getWindow();
+        actual.close();
+    }
+
     @FXML
-    private void onCuenta() {
+    private void onCuenta() throws IOException {
+
+        PerfilController.abrirPerfil();
+        cerrar();
+
         System.out.println("Cuenta");
     }
 
@@ -176,7 +190,7 @@ public class PrincipalController {
                 .POST(HttpRequest.BodyPublishers.noBody())
                 .build();
 
-        System.out.println("Crear partida");
+        System.out.println("OnCerrar");
 
         try {
             HttpResponse<String> res = HttpClientProvider.send(req);
@@ -188,7 +202,8 @@ public class PrincipalController {
 
                 HttpClientProvider.limpiarTodasLasCookies();
 
-                abrirLogin();
+                LoginController.abrirLogin();
+                cerrar();
             } else {
                 System.out.println("Error al guardar usuario: " + res.statusCode());
                 System.out.println("Cuerpo del error: " + res.body());
@@ -198,22 +213,7 @@ public class PrincipalController {
         }
     }
 
-    private void abrirLogin() throws IOException {
-        FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/gal/usc/aventurasubmarinacliente/hello-view.fxml")
-        );
 
-        Parent root = loader.load();
-
-        Stage stage = new Stage();
-        stage.setTitle("Iniciar sesión");
-        stage.setScene(new Scene(root));
-        stage.show();
-
-        // (Opcional) cerrar la ventana de login
-        Stage actual = (Stage) btnCuenta.getScene().getWindow();
-        actual.close();
-    }
 
     private void abrirVentanaPartida(String id) throws IOException {
         FXMLLoader loader = new FXMLLoader(
@@ -221,14 +221,6 @@ public class PrincipalController {
         );
 
         Parent root = loader.load();
-
-        // Obtener el controlador
-        PartidaController controller = loader.getController();
-
-        // Pasar atributos usando métodos setter
-        if (controller != null) {
-            controller.inicializarDatos();
-        }
 
         Stage stage = new Stage();
         stage.setTitle("Partida " + id);
@@ -243,5 +235,54 @@ public class PrincipalController {
         // (Opcional) cerrar la ventana de login
         Stage actual = (Stage) btnCuenta.getScene().getWindow();
         actual.close();
+    }
+
+    private String mostrarDialogoUnirse() throws IOException {
+        // Cargar el FXML del diálogo
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/gal/usc/aventurasubmarinacliente/meterIDPartida.fxml")
+        );
+
+        Parent rootDialog = loader.load();
+
+        // Obtener el controlador del diálogo
+        meterIDController controller = loader.getController();
+
+        // Crear y configurar la ventana modal
+        Stage dialogStage = new Stage();
+        dialogStage.setTitle("Unirse a Partida");
+        dialogStage.initModality(Modality.APPLICATION_MODAL);
+        dialogStage.initOwner(btnUnirse.getScene().getWindow()); // Ventana padre
+        dialogStage.setScene(new Scene(rootDialog));
+        dialogStage.setResizable(false);
+
+        // Mostrar y esperar
+        dialogStage.showAndWait();
+
+        // Retornar el ID si se confirmó
+        if (controller.fueConfirmado()) {
+            return controller.getIdPartida();
+        }
+
+        return null;
+    }
+
+    public static void abrirVentanaPrincipal() throws IOException {
+        FXMLLoader loader = new FXMLLoader(
+                PrincipalController.class.getResource("/gal/usc/aventurasubmarinacliente/principal.fxml")
+        );
+
+        Parent root = loader.load();
+
+        Stage stage = new Stage();
+        stage.setMaximized(true);
+        stage.setTitle("Partidas");
+
+        Scene scene = new Scene(root, 1200, 800);
+        stage.setMinWidth(1000);
+        stage.setMinHeight(700);
+
+        stage.setScene(scene);
+        stage.show();
     }
 }

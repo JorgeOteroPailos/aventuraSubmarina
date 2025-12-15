@@ -81,7 +81,7 @@ public class Partida implements Serializable {
 
     public Tablero tablero;
 
-    private Instant marcaTemporal;
+    private int marcaTemporal;
 
 
     private Jugador jugadorInicial;
@@ -98,7 +98,7 @@ public class Partida implements Serializable {
 
     public Partida(String id){
         tablero=new Tablero();
-        marcaTemporal= Instant.now();
+        marcaTemporal= Instant.now().getNano();
         this.id=id;
 
         for(int i=0;i<maximoJugadores;i++){
@@ -127,10 +127,10 @@ public class Partida implements Serializable {
         }
         jugadores.add(new Jugador(UsuarioDTO.from(u), colorDisponible));
         coloresUsados.set(colorDisponible, 1);
-        marcaTemporal=Instant.now();
+        marcaTemporal=Instant.now().getNano();
     }
 
-    public Instant getMarcaTemporal(){
+    public int getMarcaTemporal(){
         return marcaTemporal;
     }
 

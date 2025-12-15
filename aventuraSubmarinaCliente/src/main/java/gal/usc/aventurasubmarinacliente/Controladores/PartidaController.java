@@ -1,25 +1,31 @@
 package gal.usc.aventurasubmarinacliente.Controladores;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import gal.usc.aventurasubmarinacliente.Estado;
+import gal.usc.aventurasubmarinacliente.modelo.HttpClientProvider;
 import gal.usc.aventurasubmarinacliente.modelo.Jugador;
+import gal.usc.aventurasubmarinacliente.modelo.Partida;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+
 public class PartidaController {
 
+    private final ObjectMapper mapper = new ObjectMapper();
 
     private static final int TOTAL_CASILLAS = 41;
     private static final double CASILLA_SIZE = 40;
@@ -87,63 +93,103 @@ public class PartidaController {
     private HBox bottomPanel;
 
     @FXML
+    private TextField txtDado;
+
+    @FXML
     private Button btnDado;
 
     @FXML
-    private Button btnSubir;
+    private ToggleButton toggleSubir;
 
     @FXML
-    private Button btnBajar;
+    private ToggleButton toggleBajar;
 
     @FXML
-    private Button btnCoger;
+    private ToggleButton toggleCoger;
 
     @FXML
-    private Button btnDejar;
+    private ToggleButton toggleDejar;
 
     @FXML
-    private Button btnNada;
+    private ToggleButton toggleNada;
 
     @FXML
     private Button btnSiguiente;
 
     @FXML
     private void onSalir() {
-        System.out.println("Salir de la partida");
+        String url=Estado.BASE_URL + "/partidas/" + Estado.partida.id() + "/jugadores/" + Estado.usuario.nombre();
+
+        try {
+            HttpRequest req = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .method("DELETE", HttpRequest.BodyPublishers.noBody())
+                    .build();
+
+            HttpResponse<String> res = HttpClientProvider.send(req);
+
+            if (res.statusCode() > 199 && res.statusCode() < 400) {
+                Estado.partida=null;
+
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @FXML
-    private void onCuenta() {
+    private void onCuenta() throws IOException {
+
+        PerfilController.abrirPerfil();
+        cerrar();
+
         System.out.println("Cuenta");
     }
 
     @FXML
     private void onLanzarDado() {
+        if(Estado.partida.jugadores().get(Estado.partida.turno()).usuario().nombre().equals(Estado.usuario.nombre())){
+            txtDado.setText("[" + Estado.partida.dado1() + ", " + Estado.partida.dado2() + "] = " + Estado.partida.dado1()+Estado.partida.dado2());
+            btnDado.setDisable(true);
+        }
         System.out.println("Lanzar dado");
     }
 
     @FXML
     private void onSubir() {
+
+        toggleBajar.setSelected(false);
         System.out.println("Mover arriba");
     }
 
     @FXML
     private void onBajar() {
+
+        toggleSubir.setSelected(false);
         System.out.println("Mover abajo");
     }
 
     @FXML
     private void onCoger() {
+
+        toggleDejar.setSelected(false);
+        toggleNada.setSelected(false);
         System.out.println("Coger objeto");
     }
 
     @FXML
     private void onDejar() {
+
+        toggleCoger.setSelected(false);
+        toggleNada.setSelected(false);
         System.out.println("Dejar objeto");
     }
 
     @FXML
     private void onNada() {
+
+        toggleCoger.setSelected(false);
+        toggleDejar.setSelected(false);
         System.out.println("No hacer nada");
     }
 
@@ -157,15 +203,17 @@ public class PartidaController {
 
     @FXML
     private void initialize() {
+        txtDado.setEditable(false);
+        btnCuenta.setText(Estado.usuario.nombre());
 
         labels = Arrays.asList(lblJugador1Score,lblJugador2Score,lblJugador3Score,lblJugador4Score,lblJugador5Score,lblJugador6Score);
 
         for(Jugador j : Estado.partida.jugadores())
-            if(j.usuario().username().equals(Estado.usuario.username())) jugador=j;
+            if(j.usuario().nombre().equals(Estado.usuario.nombre())) jugador=j;
 
         crearTablero();
         Timeline timeline = new Timeline(
-                new KeyFrame(Duration.seconds(5), event -> {
+                new KeyFrame(Duration.seconds(2), event -> {
                     actualizarDatos();
                 })
         );
@@ -212,12 +260,81 @@ public class PartidaController {
 
     private void actualizarDatos(){
 
-        lblTurnoJugador.setText(Estado.partida.jugadores().get(Estado.partida.turno()).usuario().username());
-        lblTesoros.setText(String.valueOf(jugador.tesorosCargando().size()));
-        lblRonda.setText(String.valueOf((Estado.partida.contadorRondas())));
+        if(!Estado.partida.empezada()||!Estado.partida.jugadores().get(Estado.partida.turno()).usuario().nombre().equals(Estado.usuario.nombre())){
+            txtDado.setText(" ");
+            btnDado.setDisable(true);
+            toggleSubir.setDisable(true);
+            toggleBajar.setDisable(true);
+            toggleCoger.setDisable(true);
+            toggleDejar.setDisable(true);
+            toggleNada.setDisable(true);
+            btnSiguiente.setDisable(true);
+        }else{
+            btnDado.setDisable(false);
+            toggleSubir.setDisable(false);
+            toggleBajar.setDisable(false);
+            toggleCoger.setDisable(false);
+            toggleDejar.setDisable(false);
+            toggleNada.setDisable(false);
+            btnSiguiente.setDisable(false);
+        }
 
-        for(int i=0;i<Estado.partida.jugadores().size();i++){
-            labels.get(i).setText(Estado.partida.jugadores().get(i).usuario().username() + ": " + Estado.partida.jugadores().get(i).puntosGanados());
+        if(!(txtDado.getText().equals(" "))&&(toggleBajar.isSelected()||toggleSubir.isSelected())&&(toggleCoger.isSelected()||toggleDejar.isSelected()||toggleNada.isSelected())){
+            btnSiguiente.setDisable(false);
+        }else{
+            btnSiguiente.setDisable(true);
+        }
+
+        try {
+
+            String url=Estado.BASE_URL + "/partidas/" + Estado.partida.id();
+
+            url += "?selloTemporal=" + Estado.partida.marcaTemporal();
+            HttpRequest req = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .method("GET", HttpRequest.BodyPublishers.noBody())
+                    .build();
+
+            HttpResponse<String> res = HttpClientProvider.send(req);
+
+            if (res.statusCode() > 199 && res.statusCode() < 300) {
+
+                //if(res.statusCode()!=HttpStatus.NOT_MODIFIED){
+                  //No se mirarlo
+                //}
+
+                Partida p = mapper.readValue(res.body(), Partida.class);
+
+                System.out.println("Se ha actualizado la partida:");
+                System.out.println(p);
+
+                Estado.partida = p;
+
+
+            } else {
+                if(res.statusCode()==304){
+                    System.out.println("No hay cambios en la partida");
+                }else {
+                    System.out.println("Error al obtener la partida: " + Estado.partida.id() + " " + res.statusCode());
+                    System.out.println("Cuerpo del error: " + res.body());
+
+
+                    System.out.println("STATUS=" + res.statusCode());
+                    System.out.println("BODY=" + res.body());
+                    System.out.println("HEADERS=" + res.headers().map());
+                }
+
+            }
+
+            lblTurnoJugador.setText(Estado.partida.jugadores().get(Estado.partida.turno()).usuario().nombre());
+            lblTesoros.setText(String.valueOf(jugador.tesorosCargando().size()));
+            lblRonda.setText(String.valueOf((Estado.partida.contadorRondas())));
+
+            for (int i = 0; i < Estado.partida.jugadores().size(); i++) {
+                labels.get(i).setText(Estado.partida.jugadores().get(i).usuario().nombre() + ": " + Estado.partida.jugadores().get(i).puntosGanados());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -231,8 +348,10 @@ public class PartidaController {
         return casillas;
     }
 
-    public void inicializarDatos(){
-
+    private void cerrar(){
+        // (Opcional) cerrar la ventana actual
+        Stage actual = (Stage) btnCuenta.getScene().getWindow();
+        actual.close();
     }
 }
 

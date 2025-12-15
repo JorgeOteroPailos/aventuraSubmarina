@@ -127,22 +127,30 @@
             </padding>
 
             <!-- Dado -->
-            <Button fx:id="btnDado"
-                    text="🎲"
-                    onAction="#onLanzarDado"
-                    styleClass="dice-button"/>
+            <VBox alignment="CENTER" spacing="5">
+                <TextField fx:id="txtDado"
+                           promptText="Resultado dado"
+                           maxWidth="60"
+                           editable="false"
+                           styleClass="dice-textfield"/>
+
+                <Button fx:id="btnDado"
+                        text="🎲"
+                        onAction="#onLanzarDado"
+                        styleClass="dice-button"/>
+            </VBox>
 
             <!-- Movimiento -->
             <VBox spacing="10"
                   styleClass="movement-panel">
 
-                <Button text="Subir"
-                        fx:id="btnSubir"
+                <ToggleButton text="Subir"
+                        fx:id="toggleSubir"
                         onAction="#onSubir"
                         styleClass="action-button"/>
 
-                <Button text="Bajar"
-                        fx:id="btnBajar"
+                <ToggleButton text="Bajar"
+                        fx:id="toggleBajar"
                         onAction="#onBajar"
                         styleClass="action-button"/>
             </VBox>
@@ -151,18 +159,18 @@
             <VBox spacing="10"
                   styleClass="interaction-panel">
 
-                <Button text="Coger"
-                        fx:id="btnCoger"
+                <ToggleButton text="Coger"
+                        fx:id="toggleCoger"
                         onAction="#onCoger"
                         styleClass="action-button"/>
 
-                <Button text="Dejar"
-                        fx:id="btnDejar"
+                <ToggleButton text="Dejar"
+                        fx:id="toggleDejar"
                         onAction="#onDejar"
                         styleClass="action-button"/>
 
-                <Button text="Nada"
-                        fx:id="btnNada"
+                <ToggleButton text="Nada"
+                        fx:id="toggleNada"
                         onAction="#onNada"
                         styleClass="action-button"/>
             </VBox>

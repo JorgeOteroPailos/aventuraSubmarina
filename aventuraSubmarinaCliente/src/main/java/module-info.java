@@ -7,7 +7,6 @@ module gal.usc.aventurasubmarinacliente {
     requires javafx.graphics;
     requires com.fasterxml.jackson.datatype.jsr310;
 
-
     opens gal.usc.aventurasubmarinacliente to javafx.fxml;
     exports gal.usc.aventurasubmarinacliente;
     exports gal.usc.aventurasubmarinacliente.Controladores;

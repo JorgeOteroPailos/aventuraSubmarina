@@ -40,13 +40,13 @@ public class PartidaControlador {
     @GetMapping("/{id}")
     public ResponseEntity<Partida> getEstadoPartida(
             @PathVariable String id,
-            @RequestParam(required = false) Instant selloTemporal)
+            @RequestParam(required = false) int selloTemporal)
             throws PartidaNoEncontradaException {
 
         System.out.println("Entrando a getEstadoPartida");
 
         Partida p = partidaServicio.getPartida(id);
-        if (!p.getMarcaTemporal().equals(selloTemporal)) {
+        if (p.getMarcaTemporal()==selloTemporal) {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
         }
 

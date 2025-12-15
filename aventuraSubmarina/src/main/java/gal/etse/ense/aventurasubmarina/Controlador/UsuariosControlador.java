@@ -1,17 +1,19 @@
 package gal.etse.ense.aventurasubmarina.Controlador;
 
 
-import gal.etse.ense.aventurasubmarina.Modelo.Usuario;
+import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.SuplantacionException;
 import gal.etse.ense.aventurasubmarina.Modelo.UsuarioDTO;
+import gal.etse.ense.aventurasubmarina.Servicios.AutenticacionServicio;
 import gal.etse.ense.aventurasubmarina.Servicios.UsuarioServicio;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("usuarios")
@@ -19,9 +21,11 @@ import java.util.List;
 public class UsuariosControlador {
     // Aquí implementaremos nuestros servicios REST
     private final UsuarioServicio usuarioServicio;
+    private final AutenticacionServicio autenticacion;
 
-    public UsuariosControlador(UsuarioServicio usuarioServicio) {
+    public UsuariosControlador(UsuarioServicio usuarioServicio, AutenticacionServicio autenticacion) {
         this.usuarioServicio = usuarioServicio;
+        this.autenticacion = autenticacion;
     }
 
 
@@ -29,7 +33,13 @@ public class UsuariosControlador {
     // Habría patch o put, pero de momento los usuarios no tienen atributos
     // suficientes para que esta lógica tenga sentido
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarUsuario(@PathVariable String id) {
+    public ResponseEntity<Void> eliminarUsuario(@PathVariable String id, @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token) {
+
+        UsuarioDTO usuario = autenticacion.parseJWT(token.replaceFirst("^Bearer ", ""));
+        if(!Objects.equals(usuario.username(), id)){
+            throw new SuplantacionException(id, usuario.username());
+        }
+
         boolean eliminado = usuarioServicio.eliminarPorId(id);
 
         if (eliminado) {
