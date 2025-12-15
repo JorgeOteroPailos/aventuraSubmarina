@@ -84,7 +84,7 @@ public class AutenticacionControlador {
     }
 
     @PostMapping("logout")
-    //@PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> logout(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String token) {
         UsuarioDTO usuario = autenticacion.parseJWT(token.replaceFirst("^Bearer ", ""));
         autenticacion.invalidateTokens(usuario.username());

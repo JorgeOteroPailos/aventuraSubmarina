@@ -22,7 +22,7 @@ import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-public class PartidasController {
+public class PrincipalController {
     private final ObjectMapper mapper = new ObjectMapper();
 
     String jsonUsuario = mapper.writeValueAsString(Estado.usuario);
@@ -70,12 +70,14 @@ public class PartidasController {
     @FXML
     private Button btnCrear;
 
-    public PartidasController() throws JsonProcessingException {
+    public PrincipalController() throws JsonProcessingException {
     }
 
     @FXML
     private void initialize() {
         mapper.registerModule(new JavaTimeModule());
+
+        System.out.println(Estado.usuario.username());
         // Preparado para lógica futura
         // Aquí luego podrás añadir listeners, navegación, etc.
     }
@@ -83,20 +85,52 @@ public class PartidasController {
     @FXML
     private void onUnirse() {
         System.out.println("Unirse a partida");
-    }
 
-    @FXML
-    private void onCrear(){
+        String idPartida="HOLA"; //TODO
+
         HttpRequest req = HttpRequest.newBuilder()
-                .uri(URI.create(Estado.BASE_URL + "/partidas"))
-                .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + Estado.token)
-                .POST(HttpRequest.BodyPublishers.ofString(jsonUsuario))
+                .uri(URI.create(Estado.BASE_URL + "/partidas/"+idPartida+"/jugadores"))
+                .method("PATCH", HttpRequest.BodyPublishers.noBody())
                 .build();
+
         try {
             HttpResponse<String> res = HttpClientProvider.send(req);
 
             if (res.statusCode() > 199 && res.statusCode()<400) {
+
+                Partida p = mapper.readValue(res.body(), Partida.class);
+
+                System.out.println("Te has unido a la partida:");
+                System.out.println(p);
+
+                //TODO cambiar a ventanaPartida
+
+
+            } else {
+                System.out.println("Error al crear una partida: " + res.statusCode());
+                System.out.println("Cuerpo del error: " + res.body());
+
+
+                System.out.println("STATUS=" + res.statusCode());
+                System.out.println("BODY=" + res.body());
+                System.out.println("HEADERS=" + res.headers().map());
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void onCrear() {
+        HttpRequest req = HttpRequest.newBuilder()
+                .uri(URI.create(Estado.BASE_URL + "/partidas"))
+                .POST(HttpRequest.BodyPublishers.noBody())
+                .build();
+        try {
+            HttpResponse<String> res = HttpClientProvider.send(req);
+
+            if (res.statusCode() > 199 && res.statusCode() < 400) {
 
 
                 System.out.println("STATUS=" + res.statusCode());
@@ -108,6 +142,9 @@ public class PartidasController {
                 System.out.println("Partida creada:");
                 System.out.println(p);
 
+                Estado.partida=p;
+
+                abrirVentanaPartida(p.id());
 
             } else {
                 System.out.println("Error al crear una partida: " + res.statusCode());
@@ -136,10 +173,9 @@ public class PartidasController {
 
         HttpRequest req = HttpRequest.newBuilder()
                 .uri(URI.create(Estado.BASE_URL + "/autenticacion/logout"))
-                .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + Estado.token)
-                .POST(HttpRequest.BodyPublishers.ofString(jsonUsuario))
+                .POST(HttpRequest.BodyPublishers.noBody())
                 .build();
+
         System.out.println("Crear partida");
 
         try {
@@ -150,7 +186,6 @@ public class PartidasController {
                 Estado.usuario = null;
                 Estado.token = null;
 
-                //TODO borrar la cookie
                 HttpClientProvider.limpiarTodasLasCookies();
 
                 abrirLogin();
@@ -174,6 +209,36 @@ public class PartidasController {
         stage.setTitle("Iniciar sesión");
         stage.setScene(new Scene(root));
         stage.show();
+
+        // (Opcional) cerrar la ventana de login
+        Stage actual = (Stage) btnCuenta.getScene().getWindow();
+        actual.close();
+    }
+
+    private void abrirVentanaPartida(String id) throws IOException {
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/gal/usc/aventurasubmarinacliente/partida.fxml")
+        );
+
+        Parent root = loader.load();
+
+        // Obtener el controlador
+        PartidaController controller = loader.getController();
+
+        // Pasar atributos usando métodos setter
+        if (controller != null) {
+            controller.inicializarDatos();
+        }
+
+        Stage stage = new Stage();
+        stage.setTitle("Partida " + id);
+        Scene scene = new Scene(root, 1200, 800);
+        stage.setMinWidth(1000);
+        stage.setMinHeight(700);
+        stage.setScene(scene);
+        stage.show();
+
+
 
         // (Opcional) cerrar la ventana de login
         Stage actual = (Stage) btnCuenta.getScene().getWindow();

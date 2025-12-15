@@ -5,7 +5,7 @@
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/aventuraSubmarina" />
-        <option name="gradleJvm" value="21 (2)" />
+        <option name="gradleJvm" value="ms-21" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/aventuraSubmarina" />
@@ -14,7 +14,7 @@
       </GradleProjectSettings>
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/aventuraSubmarinaCliente" />
-        <option name="gradleJvm" value="21 (2)" />
+        <option name="gradleJvm" value="ms-21" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/aventuraSubmarinaCliente" />
@@ -23,7 +23,7 @@
       </GradleProjectSettings>
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/rest-example-master" />
-        <option name="gradleJvm" value="21 (2)" />
+        <option name="gradleJvm" value="ms-21" />
       </GradleProjectSettings>
     </option>
   </component>

@@ -5,7 +5,7 @@
 <?import javafx.geometry.*?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="gal.usc.aventurasubmarinacliente.Controladores.PartidasController"
+            fx:controller="gal.usc.aventurasubmarinacliente.Controladores.PrincipalController"
             fx:id="root"
             styleClass="root">
 

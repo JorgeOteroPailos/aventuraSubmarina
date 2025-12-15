@@ -8,6 +8,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 public final class HttpClientProvider {
@@ -75,16 +77,23 @@ public final class HttpClientProvider {
             return req;
         }
 
-        return HttpRequest.newBuilder(req.uri())
+        // 1. Construir el nuevo request
+        HttpRequest.Builder builder = HttpRequest.newBuilder(req.uri())
                 .method(req.method(),
-                        req.bodyPublisher().orElse(HttpRequest.BodyPublishers.noBody()))
-                .headers(req.headers().map().entrySet().stream()
-                        .flatMap(e -> e.getValue().stream()
-                                .map(v -> new String[]{e.getKey(), v}))
-                        .flatMap(Stream::of)
-                        .toArray(String[]::new))
-                .header("Authorization", "Bearer " + token.trim())
-                .build();
+                        req.bodyPublisher().orElse(HttpRequest.BodyPublishers.noBody()));
+
+        // 2. Copiar todos los headers EXISTENTES del request original
+        Map<String, List<String>> existingHeaders = req.headers().map();
+        for (Map.Entry<String, List<String>> entry : existingHeaders.entrySet()) {
+            for (String value : entry.getValue()) {
+                builder.header(entry.getKey(), value);
+            }
+        }
+
+        // 3. Añadir header Authorization
+        builder.header("Authorization", "Bearer " + token.trim());
+
+        return builder.build();
     }
 
     /**

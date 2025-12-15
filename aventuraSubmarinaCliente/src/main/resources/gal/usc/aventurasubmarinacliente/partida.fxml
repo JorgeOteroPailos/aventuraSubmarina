@@ -1,14 +1,179 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
+<BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="gal.usc.aventurasubmarinacliente.Controladores.PartidaController"
-            prefHeight="400.0" prefWidth="600.0">
+            fx:id="root"
+            styleClass="root">
 
-</AnchorPane>
+    <!-- ===== TOP BAR ===== -->
+    <top>
+        <HBox fx:id="topBar"
+              alignment="CENTER_LEFT"
+              spacing="20"
+              styleClass="top-bar">
+
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+
+            <Button text="← Salir"
+                    fx:id="btnSalir"
+                    onAction="#onSalir"
+                    styleClass="exit-button"/>
+        </HBox>
+    </top>
+
+    <!-- ===== TABLERO CENTRAL ===== -->
+    <center>
+        <ScrollPane fx:id="scrollBoard"
+                    fitToWidth="true"
+                    fitToHeight="true"
+                    style="-fx-background: turquoise;">
+            <content>
+                <Pane fx:id="boardPane"
+                      prefWidth="500"
+                      prefHeight="250" > <!-- ¡IMPORTANTE! -->
+                <!-- Las casillas se crearán aquí -->
+                </Pane>
+            </content>
+        </ScrollPane>
+    </center>
+
+    <!-- ===== PANEL DERECHO ===== -->
+    <right>
+        <VBox fx:id="rightPanel"
+              spacing="15"
+              prefWidth="220"
+              styleClass="right-panel">
+
+            <padding>
+                <Insets top="15" right="15" bottom="15" left="15"/>
+            </padding>
+
+            <Button text="Cuenta"
+                    fx:id="btnCuenta"
+                    onAction="#onCuenta"
+                    styleClass="account-button"/>
+
+            <Separator />
+
+            <Label text="Turno:"
+                   styleClass="info-label"/>
+            <Label text="Jugador1"
+                   fx:id="lblTurnoJugador"
+                   styleClass="info-value"/>
+
+            <Label text="Tesoros:"
+                   styleClass="info-label"/>
+            <Label text="2"
+                   fx:id="lblTesoros"
+                   styleClass="info-value"/>
+
+            <Label text="Ronda:"
+                   styleClass="info-label"/>
+            <Label text="1"
+                   fx:id="lblRonda"
+                   styleClass="info-value"/>
+
+            <Separator />
+
+            <Label text="Tabla puntuaciones global"
+                   styleClass="section-title"/>
+
+            <VBox fx:id="scoreBoard"
+                  spacing="5"
+                  styleClass="score-board">
+
+                <Label text="Jugador1:"
+                       fx:id="lblJugador1Score"
+                       styleClass="score-label"/>
+
+                <Label text=" "
+                       fx:id="lblJugador2Score"
+                       styleClass="score-label"/>
+
+                <Label text=" "
+                       fx:id="lblJugador3Score"
+                       styleClass="score-label"/>
+
+                <Label text=" "
+                       fx:id="lblJugador4Score"
+                       styleClass="score-label"/>
+
+                <Label text=" "
+                       fx:id="lblJugador5Score"
+                       styleClass="score-label"/>
+
+                <Label text=" "
+                       fx:id="lblJugador6Score"
+                       styleClass="score-label"/>
+
+            </VBox>
+        </VBox>
+    </right>
+
+    <!-- ===== PANEL INFERIOR ===== -->
+    <bottom>
+        <HBox fx:id="bottomPanel"
+              spacing="20"
+              alignment="CENTER_LEFT"
+              styleClass="bottom-panel">
+            <padding>
+                <Insets top="15" right="15" bottom="15" left="15"/>
+            </padding>
+
+            <!-- Dado -->
+            <Button fx:id="btnDado"
+                    text="🎲"
+                    onAction="#onLanzarDado"
+                    styleClass="dice-button"/>
+
+            <!-- Movimiento -->
+            <VBox spacing="10"
+                  styleClass="movement-panel">
+
+                <Button text="Subir"
+                        fx:id="btnSubir"
+                        onAction="#onSubir"
+                        styleClass="action-button"/>
+
+                <Button text="Bajar"
+                        fx:id="btnBajar"
+                        onAction="#onBajar"
+                        styleClass="action-button"/>
+            </VBox>
+
+            <!-- Acción -->
+            <VBox spacing="10"
+                  styleClass="interaction-panel">
+
+                <Button text="Coger"
+                        fx:id="btnCoger"
+                        onAction="#onCoger"
+                        styleClass="action-button"/>
+
+                <Button text="Dejar"
+                        fx:id="btnDejar"
+                        onAction="#onDejar"
+                        styleClass="action-button"/>
+
+                <Button text="Nada"
+                        fx:id="btnNada"
+                        onAction="#onNada"
+                        styleClass="action-button"/>
+            </VBox>
+
+            <!-- Siguiente -->
+            <Button text="▶"
+                    fx:id="btnSiguiente"
+                    onAction="#onSiguiente"
+                    styleClass="next-button"/>
+
+        </HBox>
+    </bottom>
+
+</BorderPane>
