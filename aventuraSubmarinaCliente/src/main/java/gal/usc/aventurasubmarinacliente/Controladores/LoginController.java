@@ -15,7 +15,6 @@ import javafx.scene.control.TextField;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Optional;
@@ -85,7 +84,7 @@ public class LoginController {
 
     private void abrirVentanaPrincipal() throws IOException {
         FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/gal/usc/aventurasubmarinacliente/partidas.fxml")
+                getClass().getResource("/gal/usc/aventurasubmarinacliente/principal.fxml")
         );
 
         Parent root = loader.load();
