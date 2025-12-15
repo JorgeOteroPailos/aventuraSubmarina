@@ -77,7 +77,6 @@ public class AutenticacionControlador {
     }
 
     @PostMapping("refresh")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> refresh(@CookieValue(name = REFRESH_TOKEN_COOKIE_NAME) String refreshToken) throws TokenRefrescoInvalidoException {
         UsuarioDTO usuario = autenticacion.login(refreshToken);
 

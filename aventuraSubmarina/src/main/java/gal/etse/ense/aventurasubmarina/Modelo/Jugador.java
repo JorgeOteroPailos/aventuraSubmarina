@@ -5,7 +5,7 @@ import java.util.List;
 
 //No debe confundirse con Usuario: un Jugador es la instancia concreta de un usuario en una partida, como su ficha
 public class Jugador {
-    private Usuario usuario;
+    private UsuarioDTO usuario;
 
 
 
@@ -21,7 +21,7 @@ public class Jugador {
 
     private int color;
 
-    public Usuario getUsuario(){
+    public UsuarioDTO getUsuario(){
         return usuario;
     }
 
@@ -30,7 +30,7 @@ public class Jugador {
         return color;
     }
 
-    public Jugador(Usuario usuario, int color){
+    public Jugador(UsuarioDTO usuario, int color){
         this.usuario=usuario;
         this.color=color;
     }

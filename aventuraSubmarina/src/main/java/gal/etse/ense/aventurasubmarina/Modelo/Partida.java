@@ -6,20 +6,20 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.annotation.Transient;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Document(collection = "partidas")
-public class Partida {
+public class Partida implements Serializable {
 
     private static final int maximoJugadores=6;
 
     @Transient
-    private final BitSet coloresUsados=new BitSet(maximoJugadores);
+    private final List<Integer> coloresUsados= new ArrayList<>(maximoJugadores);
 
     @Transient
     protected final List<Jugador> jugadores=new ArrayList<>(maximoJugadores);
@@ -32,7 +32,7 @@ public class Partida {
 
     private boolean rondaAcabada=false;
 
-    public BitSet getColoresUsados() {
+    public List<Integer> getColoresUsados() {
         return coloresUsados;
     }
 
@@ -100,6 +100,11 @@ public class Partida {
         tablero=new Tablero();
         marcaTemporal= Instant.now();
         this.id=id;
+
+        for(int i=0;i<maximoJugadores;i++){
+            coloresUsados.add(0);
+        }
+
     }
 
     public Partida(){
@@ -109,13 +114,19 @@ public class Partida {
 
     public synchronized void anadirJugador(Usuario u) throws JugadorYaAnadidoException {
         for (Jugador j : jugadores){
-            if (j.getUsuario().equals(u)){
+            if (j.getUsuario().equals(UsuarioDTO.from(u))){
                 throw new JugadorYaAnadidoException(id, u);
             }
         }
-        int colorDisponible= coloresUsados.nextClearBit(0);
-        jugadores.add(new Jugador(u, colorDisponible));
-        coloresUsados.set(colorDisponible, true);
+        int colorDisponible=0;
+        for(int i=0;i<maximoJugadores;i++){
+            if(coloresUsados.get(i)==0){
+                colorDisponible=i;
+                break;
+            }
+        }
+        jugadores.add(new Jugador(UsuarioDTO.from(u), colorDisponible));
+        coloresUsados.set(colorDisponible, 1);
         marcaTemporal=Instant.now();
     }
 
@@ -146,7 +157,7 @@ public class Partida {
         StringBuilder r= new StringBuilder();
         r.append("JUGADORES:\n");
         for(Jugador j : jugadores){
-            r.append(j.getUsuario().getNombre()).append("\n");
+            r.append(j.getUsuario().username()).append("\n");
         }
         r.append("TABLERO:\n");
 
@@ -156,7 +167,7 @@ public class Partida {
             r.append(i++);
             for(Jugador j : jugadores){
                 if(j.posicion==i){
-                    r.append(j.getUsuario().getNombre()).append(",");
+                    r.append(j.getUsuario().username()).append(",");
                 }
 
             }
@@ -167,7 +178,7 @@ public class Partida {
 
     private Jugador buscarPorNombre(String nombre){
         for (Jugador j : jugadores){
-            if(Objects.equals(j.getUsuario().getNombre(), nombre)){
+            if(Objects.equals(j.getUsuario().username(), nombre)){
                 return j;
             }
 
@@ -179,6 +190,10 @@ public class Partida {
 
         Jugador j=buscarPorNombre(nombreJugador);
 
+        if(j==null){
+            throw new NoEstasEnLaPartidaException(this.id,nombreJugador);
+        }
+
         int indiceJ=jugadores.indexOf(j);
         if(indiceJ==-1){
             throw new NoEstasEnLaPartidaException(this.id, nombreJugador);
@@ -187,7 +202,7 @@ public class Partida {
             throw new NoEsTuTurnoException(jugadores.get(turno));
         }
 
-        int color= jugadores.get(turno).getColor();
+        //int color= jugadores.get(turno).getColor();
 
 
         if(j.llegoAlSubmarino){
@@ -236,7 +251,7 @@ public class Partida {
         Jugador jSiguiente;
         if (jugadorInicial!=null && rondaAcabada){
             jSiguiente=jugadorInicial;
-        }else if(jugadores.getLast().getUsuario().getNombre().equals(j.getUsuario().getNombre())){
+        }else if(jugadores.getLast().getUsuario().username().equals(j.getUsuario().username())){
             jSiguiente=jugadores.getFirst();
         }
         else jSiguiente=jugadores.get(jugadores.indexOf(j)+1);
@@ -253,7 +268,7 @@ public class Partida {
     public void abandonarPartida(String idJugador) throws NoEstasEnLaPartidaException {
         Jugador jugadorEliminar=null;
         for(Jugador j:jugadores){
-            if(j.getUsuario().getNombre().equals(idJugador)){
+            if(j.getUsuario().username().equals(idJugador)){
                 jugadorEliminar=j;
             }
         }

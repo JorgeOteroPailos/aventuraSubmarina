@@ -31,6 +31,6 @@ public record Partida(
         Jugador jugadorInicial,
 
         // Colores
-        BitSet coloresUsados
+        List<Integer> coloresUsados
 
 ) {}

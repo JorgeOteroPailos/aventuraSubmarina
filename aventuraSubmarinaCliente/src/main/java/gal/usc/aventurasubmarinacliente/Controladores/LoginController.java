@@ -56,6 +56,9 @@ public class LoginController {
                 .POST(HttpRequest.BodyPublishers.ofString(jsonUsuario))
                 .build();
 
+
+        //TODO hacer q se vea claro cuando pones mal la contraseña
+
         try {
             HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());
 
@@ -65,8 +68,10 @@ public class LoginController {
                 Optional<String> auth = res.headers().firstValue("Authorization");
 
                 if (auth.isEmpty()) {
-                    throw new RuntimeException("Non llegó token Authorization");
+                    throw new RuntimeException("No llegó token Authorization");
                 }
+
+                Estado.token = auth.get().replace("Bearer ", "");
 
                 Estado.usuario=u;
                 abrirVentanaPrincipal();
@@ -87,8 +92,14 @@ public class LoginController {
         Parent root = loader.load();
 
         Stage stage = new Stage();
+        stage.setMaximized(true);
         stage.setTitle("Partidas");
-        stage.setScene(new Scene(root));
+
+        Scene scene = new Scene(root, 1200, 800);
+        stage.setMinWidth(1000);
+        stage.setMinHeight(700);
+
+        stage.setScene(scene);
         stage.show();
 
         // (Opcional) cerrar la ventana de login

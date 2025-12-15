@@ -2,6 +2,7 @@ package gal.usc.aventurasubmarinacliente.Controladores;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import gal.usc.aventurasubmarinacliente.Estado;
 import gal.usc.aventurasubmarinacliente.modelo.HttpClientProvider;
 import gal.usc.aventurasubmarinacliente.modelo.Partida;
@@ -21,11 +22,10 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Optional;
 
 public class PartidasController {
-    private final static String BASE_URL="http://localhost:8082";
     private final ObjectMapper mapper = new ObjectMapper();
+
     String jsonUsuario = mapper.writeValueAsString(Estado.usuario);
     private final HttpClient client = HttpClientProvider.getClient();
 
@@ -77,6 +77,7 @@ public class PartidasController {
 
     @FXML
     private void initialize() {
+        mapper.registerModule(new JavaTimeModule());
         // Preparado para lógica futura
         // Aquí luego podrás añadir listeners, navegación, etc.
     }
@@ -89,22 +90,36 @@ public class PartidasController {
     @FXML
     private void onCrear(){
         HttpRequest req = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/autenticacion/logout"))
+                .uri(URI.create(Estado.BASE_URL + "/partidas"))
                 .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + Estado.token)
                 .POST(HttpRequest.BodyPublishers.ofString(jsonUsuario))
                 .build();
         try {
             HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());
 
             if (res.statusCode() > 199 && res.statusCode()<400) {
+
+
+                System.out.println("STATUS=" + res.statusCode());
+                System.out.println("BODY=" + res.body());
+                System.out.println("HEADERS=" + res.headers().map());
+
                 Partida p = mapper.readValue(res.body(), Partida.class);
 
                 System.out.println("Partida creada:");
                 System.out.println(p);
 
+
             } else {
                 System.out.println("Error al crear una partida: " + res.statusCode());
                 System.out.println("Cuerpo del error: " + res.body());
+
+
+                System.out.println("STATUS=" + res.statusCode());
+                System.out.println("BODY=" + res.body());
+                System.out.println("HEADERS=" + res.headers().map());
+
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -122,8 +137,9 @@ public class PartidasController {
 
 
         HttpRequest req = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/autenticacion/logout"))
+                .uri(URI.create(Estado.BASE_URL + "/autenticacion/logout"))
                 .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + Estado.token)
                 .POST(HttpRequest.BodyPublishers.ofString(jsonUsuario))
                 .build();
         System.out.println("Crear partida");
@@ -134,6 +150,7 @@ public class PartidasController {
             if (res.statusCode() > 199 && res.statusCode()<400) {
 
                 Estado.usuario = null;
+                Estado.token = null;
 
                 //TODO borrar la cookie
                 HttpClientProvider.limpiarTodasLasCookies();

@@ -5,6 +5,7 @@ module gal.usc.aventurasubmarinacliente {
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.databind;
     requires javafx.graphics;
+    requires com.fasterxml.jackson.datatype.jsr310;
 
 
     opens gal.usc.aventurasubmarinacliente to javafx.fxml;
