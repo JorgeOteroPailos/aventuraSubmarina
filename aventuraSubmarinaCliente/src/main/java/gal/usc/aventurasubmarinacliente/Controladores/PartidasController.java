@@ -19,7 +19,6 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
@@ -27,7 +26,6 @@ public class PartidasController {
     private final ObjectMapper mapper = new ObjectMapper();
 
     String jsonUsuario = mapper.writeValueAsString(Estado.usuario);
-    private final HttpClient client = HttpClientProvider.getClient();
 
     // Root
     @FXML
@@ -96,7 +94,7 @@ public class PartidasController {
                 .POST(HttpRequest.BodyPublishers.ofString(jsonUsuario))
                 .build();
         try {
-            HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> res = HttpClientProvider.send(req);
 
             if (res.statusCode() > 199 && res.statusCode()<400) {
 
@@ -145,7 +143,7 @@ public class PartidasController {
         System.out.println("Crear partida");
 
         try {
-            HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> res = HttpClientProvider.send(req);
 
             if (res.statusCode() > 199 && res.statusCode()<400) {
 

@@ -30,7 +30,6 @@ public class LoginController {
     @FXML private Button loginButton;
     @FXML private Label statusLabel;
 
-    private final HttpClient client = HttpClientProvider.getClient();;
     private final static String BASE_URL="http://localhost:8082";
     private final ObjectMapper mapper = new ObjectMapper();
 
@@ -60,7 +59,7 @@ public class LoginController {
         //TODO hacer q se vea claro cuando pones mal la contraseña
 
         try {
-            HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> res = HttpClientProvider.send(req);
 
             if (res.statusCode() > 199 && res.statusCode()<400) {
                 System.out.println("Usuario loggeado: " + u + ", con código de respuesta " + res.statusCode());
