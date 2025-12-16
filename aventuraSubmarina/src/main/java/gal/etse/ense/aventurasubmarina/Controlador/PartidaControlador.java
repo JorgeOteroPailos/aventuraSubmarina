@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
+import java.util.Map;
 
 @NullMarked
 @RestController
@@ -77,12 +78,37 @@ public class PartidaControlador {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<Partida> accion(@RequestBody AccionDTO accionDTO, @PathVariable String id, Authentication autenticacion) throws PartidaNoEncontradaException, NoEsTuTurnoException, AccionIlegalException, NoEstasEnLaPartidaException, SintaxisIncorrectaException {
+    public ResponseEntity<?> accion(@RequestBody AccionDTO accionDTO, @PathVariable String id, Authentication autenticacion)  {
 
         System.out.println("Entrando a accion");
 
-        Partida p=partidaServicio.accion(id, accionDTO.accion(), accionDTO.accionSubirBajar(), autenticacion.getName());
+        try {
+            Partida p = partidaServicio.accion(id, accionDTO.accion(),
+                    accionDTO.accionSubirBajar(),
+                    autenticacion.getName());
+            return ResponseEntity.ok(p);
 
-        return new ResponseEntity<>(p, HttpStatus.OK); //Hacer algo más arriba sobre si la partida acabó
+        } catch (PartidaNoEncontradaException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+
+        } catch (NoEsTuTurnoException | NoEstasEnLaPartidaException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(e.getMessage());
+
+        } catch (AccionIlegalException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+
+        } catch (SintaxisIncorrectaException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Sintaxis incorrecta",
+                            "message", e.getMessage()));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error interno",
+                            "message", e.getMessage()));
+        }
     }
 }

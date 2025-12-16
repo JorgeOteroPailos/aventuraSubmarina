@@ -230,10 +230,14 @@ public class Partida implements Serializable {
                 }
                 break;
             case "dejar":
-                if(tablero.casillas.get(j.posicion).tesoros.isEmpty()){
-                    tablero.casillas.get(j.posicion).tesoros.add(j.tesorosCargando.getLast().getLast());
+                if(tablero.casillas.get(j.posicion).tesoros.isEmpty()&& !j.tesorosCargando.isEmpty()){
+                    List<Tesoro> copiaTesoros = new ArrayList<>(j.tesorosCargando.getLast());
+                    tablero.casillas.get(j.posicion).tesoros.addAll(copiaTesoros);
+                    j.tesorosCargando.removeLast();
+                }else if(j.tesorosCargando.isEmpty()){
+                    throw new AccionIlegalException("dejar", "No tienes tesoros que dejar");
                 }else{
-                    throw new AccionIlegalException("dejar", "No puedes dejar un tesoro en una casilla no vacía");
+                    throw new AccionIlegalException("dejar", "Ya hay un tesoro en esta casilla");
                 }
                 break;
             default:

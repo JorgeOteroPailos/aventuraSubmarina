@@ -119,6 +119,11 @@
                        styleClass="score-label"/>
 
             </VBox>
+
+            <Label text=" "
+                   fx:id="lblError"
+                   styleClass="error-label"
+                   style="-fx-text-fill: #cc0000;" />
         </VBox>
     </right>
 

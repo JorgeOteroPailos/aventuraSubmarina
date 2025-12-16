@@ -26,7 +26,7 @@ public class PartidaController {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
-    private static final int TOTAL_CASILLAS = 48;
+    private static final int TOTAL_CASILLAS = 49;
     private static final double CASILLA_SIZE = 40;
 
 
@@ -121,6 +121,9 @@ public class PartidaController {
 
     @FXML
     private Button btnIniciarPartida;
+
+    @FXML
+    private Label lblError;
 
     @FXML
     private void onSalir() {
@@ -239,6 +242,8 @@ public class PartidaController {
 
                 if (res.statusCode() > 199 && res.statusCode() < 300) {
 
+                    lblError.setText(" ");
+
                     Partida p = mapper.readValue(res.body(), Partida.class);
 
                     System.out.println("Se ha enviado la accion "+accion+" a la partida:");
@@ -251,6 +256,9 @@ public class PartidaController {
 
 
                 } else {
+
+                    lblError.setText(res.body());
+
                     System.out.println("Error al mandar accion "+accion+" a la partida: " + Estado.partida.id() + " " + res.statusCode());
                     System.out.println("Cuerpo del error: " + res.body());
 
@@ -319,7 +327,10 @@ public class PartidaController {
 
     @FXML
     private void initialize() {
+
         btnCuenta.setText(Estado.usuario.username());
+
+        lblError.setWrapText(true);
 
         labels = Arrays.asList(lblJugador1Score,lblJugador2Score,lblJugador3Score,lblJugador4Score,lblJugador5Score,lblJugador6Score);
 
