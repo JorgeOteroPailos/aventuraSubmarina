@@ -26,7 +26,7 @@ public class PartidaController {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
-    private static final int TOTAL_CASILLAS = 41;
+    private static final int TOTAL_CASILLAS = 48;
     private static final double CASILLA_SIZE = 40;
 
 
@@ -93,7 +93,7 @@ public class PartidaController {
     private HBox bottomPanel;
 
     @FXML
-    private TextField lblDado;
+    private Label lblDado;
 
     @FXML
     private ScrollPane scrollBoard;
@@ -200,101 +200,104 @@ public class PartidaController {
         System.out.println("No hacer nada");
     }
 
-    @FXML
-    private void onSiguiente() {
+        @FXML
+        private void onSiguiente() {
 
-        //TODO enviar la acción y que haya, de alguna manera, feedback
+            //TODO enviar la acción y que haya, de alguna manera, feedback
 
-        Accion accion=new Accion("","");
+            Accion accion=new Accion("","");
 
-        if(toggleSubir.isSelected()&&toggleNada.isSelected()){
-            accion=new Accion("nada","subir");
-        }else if(toggleSubir.isSelected()&&toggleCoger.isSelected()){
-            accion=new Accion("coger","subir");
-        }else if(toggleSubir.isSelected()&&toggleDejar.isSelected()){
-            accion=new Accion("dejar","subir");
-        }else if(toggleBajar.isSelected()&&toggleNada.isSelected()){
-            accion=new Accion("nada","bajar");
-        }else if(toggleBajar.isSelected()&&toggleCoger.isSelected()){
-            accion=new Accion("coger","bajar");
-        }else if(toggleBajar.isSelected()&&toggleDejar.isSelected()){
-            accion=new Accion("dejar","bajar");
-        }
-
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            String jsonAccion = mapper.writeValueAsString(accion);
-
-            String url=Estado.BASE_URL + "/partidas/" + Estado.partida.id();
-
-            HttpRequest req = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
-                    .method("PATCH", HttpRequest.BodyPublishers.ofString(jsonAccion))
-                    .header("Authorization", "Bearer " + Estado.token)
-                    .build();
-
-            HttpResponse<String> res = HttpClientProvider.send(req);
-
-            if (res.statusCode() > 199 && res.statusCode() < 300) {
-
-                Partida p = mapper.readValue(res.body(), Partida.class);
-
-                System.out.println("Se ha enviado la accion "+accion+" a la partida:");
-                System.out.println(p);
-
-                Estado.partida = p;
-
-
-            } else {
-                System.out.println("Error al mandar accion "+accion+" a la partida: " + Estado.partida.id() + " " + res.statusCode());
-                System.out.println("Cuerpo del error: " + res.body());
-
-
-                System.out.println("STATUS=" + res.statusCode());
-                System.out.println("BODY=" + res.body());
-                System.out.println("HEADERS=" + res.headers().map());
-
+            if(toggleSubir.isSelected()&&toggleNada.isSelected()){
+                accion=new Accion("nada","subir");
+            }else if(toggleSubir.isSelected()&&toggleCoger.isSelected()){
+                accion=new Accion("coger","subir");
+            }else if(toggleSubir.isSelected()&&toggleDejar.isSelected()){
+                accion=new Accion("dejar","subir");
+            }else if(toggleBajar.isSelected()&&toggleNada.isSelected()){
+                accion=new Accion("nada","bajar");
+            }else if(toggleBajar.isSelected()&&toggleCoger.isSelected()){
+                accion=new Accion("coger","bajar");
+            }else if(toggleBajar.isSelected()&&toggleDejar.isSelected()){
+                accion=new Accion("dejar","bajar");
             }
 
-            System.out.println("Iniciar partida");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                String jsonAccion = mapper.writeValueAsString(accion);
+
+                String url=Estado.BASE_URL + "/partidas/" + Estado.partida.id();
+
+                HttpRequest req = HttpRequest.newBuilder()
+                        .uri(URI.create(url))
+                        .method("PUT", HttpRequest.BodyPublishers.ofString(jsonAccion))
+                        .header("Authorization", "Bearer " + Estado.token)
+                        .build();
+
+                HttpResponse<String> res = HttpClientProvider.send(req);
+
+                if (res.statusCode() > 199 && res.statusCode() < 300) {
+
+                    Partida p = mapper.readValue(res.body(), Partida.class);
+
+                    System.out.println("Se ha enviado la accion "+accion+" a la partida:");
+                    System.out.println(p);
+
+                    Estado.partida = p;
+
+                    for(Jugador j : Estado.partida.jugadores())
+                        if(j.usuario().username().equals(Estado.usuario.username())) jugador=j;
+
+
+                } else {
+                    System.out.println("Error al mandar accion "+accion+" a la partida: " + Estado.partida.id() + " " + res.statusCode());
+                    System.out.println("Cuerpo del error: " + res.body());
+
+
+                    System.out.println("STATUS=" + res.statusCode());
+                    System.out.println("BODY=" + res.body());
+                    System.out.println("HEADERS=" + res.headers().map());
+
+                }
+
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            System.out.println("Siguiente turno");
         }
 
+        @FXML
+        private void onIniciarPartida(){
+
+            try {
+                String url=Estado.BASE_URL + "/partidas/" + Estado.partida.id();
+
+                HttpRequest req = HttpRequest.newBuilder()
+                        .uri(URI.create(url))
+                        .method("PATCH", HttpRequest.BodyPublishers.noBody())
+                        .header("Authorization", "Bearer " + Estado.token)
+                        .build();
+
+                HttpResponse<String> res = HttpClientProvider.send(req);
+
+                if (res.statusCode() > 199 && res.statusCode() < 300) {
+
+                    //if(res.statusCode()!=HttpStatus.NOT_MODIFIED){
+                    //No se mirarlo
+                    //}
+
+                    Partida p = mapper.readValue(res.body(), Partida.class);
+
+                    System.out.println("Se ha iniciado la partida:");
+                    System.out.println(p);
+
+                    Estado.partida = p;
+
+                    for(Jugador j : Estado.partida.jugadores())
+                        if(j.usuario().username().equals(Estado.usuario.username())) jugador=j;
 
 
-        System.out.println("Siguiente turno");
-    }
-
-    @FXML
-    private void onIniciarPartida(){
-
-        try {
-            String url=Estado.BASE_URL + "/partidas/" + Estado.partida.id();
-
-            HttpRequest req = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
-                    .method("PATCH", HttpRequest.BodyPublishers.noBody())
-                    .header("Authorization", "Bearer " + Estado.token)
-                    .build();
-
-            HttpResponse<String> res = HttpClientProvider.send(req);
-
-            if (res.statusCode() > 199 && res.statusCode() < 300) {
-
-                //if(res.statusCode()!=HttpStatus.NOT_MODIFIED){
-                //No se mirarlo
-                //}
-
-                Partida p = mapper.readValue(res.body(), Partida.class);
-
-                System.out.println("Se ha iniciado la partida:");
-                System.out.println(p);
-
-                Estado.partida = p;
-
-
-            } else {
+                } else {
                 System.out.println("Error al iniciar la partida: " + Estado.partida.id() + " " + res.statusCode());
                 System.out.println("Cuerpo del error: " + res.body());
 
@@ -418,6 +421,9 @@ public class PartidaController {
 
                 Estado.partida = p;
 
+                for(Jugador j : Estado.partida.jugadores())
+                    if(j.usuario().username().equals(Estado.usuario.username())) jugador=j;
+
 
             } else {
                 if(res.statusCode()==304){
@@ -442,6 +448,7 @@ public class PartidaController {
                 labels.get(i).setText(Estado.partida.jugadores().get(i).usuario().username() + ": " + Estado.partida.jugadores().get(i).puntosGanados());
             }
 
+            System.out.println(Estado.partida.tablero().casillas().size());
             for(int i=0;i<Estado.partida.tablero().casillas().size();i++){
                 Jugador j=Estado.partida.tablero().casillas().get(i).jugadorPresenteDTO();
 

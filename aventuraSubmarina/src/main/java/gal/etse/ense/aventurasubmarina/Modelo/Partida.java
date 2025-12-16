@@ -204,6 +204,7 @@ public class Partida implements Serializable {
 
         //int color= jugadores.get(turno).getColor();
 
+        j=jugadores.get(turno);
 
         if(j.llegoAlSubmarino){
             throw new AccionIlegalException("accion","Ya llegaste al submarino, espera a tus compañeros");
@@ -218,8 +219,14 @@ public class Partida implements Serializable {
                     //No hay tesoros
                     throw new AccionIlegalException("coger","No hay tesoros en esta casilla");
                 }else{
-                    j.tesorosCargando.add(tablero.casillas.get(j.posicion).tesoros); //Añades los tesoros como si fueran 1
+                    System.out.println(tablero.casillas.get(j.posicion).tesoros);
+
+                    List<Tesoro> copiaTesoros = new ArrayList<>(tablero.casillas.get(j.posicion).tesoros);
+
+                    j.tesorosCargando.add(copiaTesoros); //Añades los tesoros como si fueran 1
                     tablero.casillas.get(j.posicion).tesoros.clear(); //Eliminas el tesoro de la casilla
+
+                    System.out.println(j.tesorosCargando);
                 }
                 break;
             case "dejar":
@@ -262,7 +269,12 @@ public class Partida implements Serializable {
         lanzarDados();
         moverse(jSiguiente,dado1+dado2-jSiguiente.tesorosCargando.size());
 
-        turno++;
+        if(turno!=jugadores.size()-1){
+            turno++;
+        }else{
+            turno=0;
+        }
+
     }
 
     public void abandonarPartida(String idJugador) throws NoEstasEnLaPartidaException {

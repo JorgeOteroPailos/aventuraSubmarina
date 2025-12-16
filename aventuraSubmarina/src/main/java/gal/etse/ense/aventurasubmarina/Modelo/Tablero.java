@@ -24,12 +24,13 @@ public class Tablero {
     }
 
     private void inicializarTablero(){
-        casillas=new ArrayList<>(tamano+10);
+        casillas=new ArrayList<>();
 
-        List<Casilla> casillas1 = new ArrayList<>(12);
-        List<Casilla> casillas2 = new ArrayList<>(12);
-        List<Casilla> casillas3 = new ArrayList<>(12);
-        List<Casilla> casillas4 = new ArrayList<>(12);
+        // TODO ARREGLAR ESTO, POR CADA CASILLA HAY 8 TESOROS Y CLARAMENTE NO DEBERIA, SE POR QUÉ ES PERO NO SE QUÉ QUERÍA HACER
+        List<Casilla> casillas1 = new ArrayList<>();
+        List<Casilla> casillas2 = new ArrayList<>();
+        List<Casilla> casillas3 = new ArrayList<>();
+        List<Casilla> casillas4 = new ArrayList<>();
 
         for(int i=0;i<12;i++){
             casillas1.add(new Casilla());
