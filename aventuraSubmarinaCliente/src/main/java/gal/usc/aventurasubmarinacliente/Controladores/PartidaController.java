@@ -137,6 +137,8 @@ public class PartidaController {
             if (res.statusCode() > 199 && res.statusCode() < 400) {
                 Estado.partida=null;
 
+                PrincipalController.abrirVentanaPrincipal();
+                cerrar();
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -203,7 +205,7 @@ public class PartidaController {
         @FXML
         private void onSiguiente() {
 
-            //TODO enviar la acción y que haya, de alguna manera, feedback
+            //TODO Que haya, de alguna manera, feedback
 
             Accion accion=new Accion("","");
 

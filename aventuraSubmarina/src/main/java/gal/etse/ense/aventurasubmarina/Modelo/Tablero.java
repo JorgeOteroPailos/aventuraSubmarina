@@ -39,27 +39,38 @@ public class Tablero {
             casillas4.add(new Casilla());
         }
 
-        for(Casilla casilla:casillas1){
-            for(int i=0;i<4;i++){
-                casilla.tesoros.add(new Tesoro(1,i));
-                casilla.tesoros.add(new Tesoro(1,i));
-            }
-        }for(Casilla casilla:casillas2){
-            for(int i=4;i<8;i++){
-                casilla.tesoros.add(new Tesoro(2,i));
-                casilla.tesoros.add(new Tesoro(2,i));
-            }
-        }for(Casilla casilla:casillas3){
-            for(int i=8;i<12;i++){
-                casilla.tesoros.add(new Tesoro(3,i));
-                casilla.tesoros.add(new Tesoro(3,i));
-            }
-        }for(Casilla casilla:casillas4){
-            for(int i=12;i<16;i++){
-                casilla.tesoros.add(new Tesoro(4,i));
-                casilla.tesoros.add(new Tesoro(4,i));
-            }
-        }
+        for(int i=0;i<7;i+=2)
+            casillas1.get(i).tesoros.add(new Tesoro(1,i/2));
+        for(int i=1;i<8;i+=2)
+            casillas1.get(i).tesoros.add(new Tesoro(1,i/2));
+
+
+        casillas2.getFirst().tesoros.add(new Tesoro(2,4));
+        casillas2.get(1).tesoros.add(new Tesoro(2,4));
+        casillas2.get(2).tesoros.add(new Tesoro(2,5));
+        casillas2.get(3).tesoros.add(new Tesoro(2,5));
+        casillas2.get(4).tesoros.add(new Tesoro(2,6));
+        casillas2.get(5).tesoros.add(new Tesoro(2,6));
+        casillas2.get(6).tesoros.add(new Tesoro(2,7));
+        casillas2.get(7).tesoros.add(new Tesoro(2,7));
+
+        casillas3.getFirst().tesoros.add(new Tesoro(2,8));
+        casillas3.get(1).tesoros.add(new Tesoro(2,8));
+        casillas3.get(2).tesoros.add(new Tesoro(2,9));
+        casillas3.get(3).tesoros.add(new Tesoro(2,9));
+        casillas3.get(4).tesoros.add(new Tesoro(2,10));
+        casillas3.get(5).tesoros.add(new Tesoro(2,10));
+        casillas3.get(6).tesoros.add(new Tesoro(2,11));
+        casillas3.get(7).tesoros.add(new Tesoro(2,11));
+
+        casillas4.getFirst().tesoros.add(new Tesoro(2,12));
+        casillas4.get(1).tesoros.add(new Tesoro(2,12));
+        casillas4.get(2).tesoros.add(new Tesoro(2,13));
+        casillas4.get(3).tesoros.add(new Tesoro(2,13));
+        casillas4.get(4).tesoros.add(new Tesoro(2,14));
+        casillas4.get(5).tesoros.add(new Tesoro(2,14));
+        casillas4.get(6).tesoros.add(new Tesoro(2,15));
+        casillas4.get(7).tesoros.add(new Tesoro(2,15));
 
         Collections.shuffle(casillas1);
         Collections.shuffle(casillas2);
