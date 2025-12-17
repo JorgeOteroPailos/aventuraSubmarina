@@ -42,8 +42,4 @@ public class TokenRefresco {
         return ttl;
     }
 
-    public TokenRefresco setTtl(long ttl) {
-        this.ttl = ttl;
-        return this;
-    }
 }

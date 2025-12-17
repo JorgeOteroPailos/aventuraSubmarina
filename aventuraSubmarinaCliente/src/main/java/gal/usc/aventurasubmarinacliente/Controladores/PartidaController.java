@@ -256,7 +256,7 @@ public class PartidaController {
         crearTablero();
 
         Timeline timeline = new Timeline(
-                new KeyFrame(Duration.seconds(1), event -> actualizarDatos())
+                new KeyFrame(Duration.seconds(2), event -> actualizarDatos())
         );
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
@@ -394,7 +394,7 @@ public class PartidaController {
                     if (j.usuario().username().equals(Estado.usuario.username())) jugador = j;
             }
 
-            System.out.println(Estado.partida.tablero().oxigeno());
+            //System.out.println(Estado.partida.tablero().oxigeno());
 
             renderizarPartida();
 

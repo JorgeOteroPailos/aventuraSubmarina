@@ -5,6 +5,7 @@ package gal.etse.ense.aventurasubmarina.Servicios;
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.TokenRefrescoInvalidoException;
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.UsuarioNoEncontradoException;
 import gal.etse.ense.aventurasubmarina.Modelo.TokenRefresco;
+import gal.etse.ense.aventurasubmarina.Modelo.Usuario;
 import gal.etse.ense.aventurasubmarina.Modelo.UsuarioDTO;
 import gal.etse.ense.aventurasubmarina.Utils.DebugPrint;
 import gal.etse.ense.aventurasubmarina.Repositorio.RolesRepositorio;
@@ -43,10 +44,10 @@ public class AutenticacionServicio {
     private final RolesRepositorio rolesRepositorio;
     private final TokenRefrescoRepositorio refreshTokenRepositorio;
 
-    @Value("${auth.jwt.ttl:PT30S}")
+    @Value("${auth.jwt.ttl:PT30M}")
     private Duration tokenTTL;
 
-    @Value("${auth.refresh.ttl:PT72H}")
+    @Value("${auth.refresh.ttl:PT2H}")
     private Duration refreshTTL;
 
     @Autowired
@@ -76,14 +77,22 @@ public class AutenticacionServicio {
     public UsuarioDTO login(UsuarioDTO usuario) throws AuthenticationException {
 
         DebugPrint.show("Entrando al login desde contraseña");
+        DebugPrint.show("[AuthService::login-password] ENTRADA");
+        DebugPrint.show("[AuthService::login-password] Usuario = " + usuario.username());
+
 
         Authentication auth = autenticacionManager.authenticate(UsernamePasswordAuthenticationToken.unauthenticated(usuario.username(), usuario.password()));
+
+        DebugPrint.show("[AuthService::login-password] Authentication OK");
+
 
         List<String> roles = auth.getAuthorities()
                 .stream()
                 .filter(authority -> authority instanceof SimpleGrantedAuthority)
                 .map(GrantedAuthority::getAuthority)
                 .toList();
+
+        DebugPrint.show("[AuthService::login-password] Xerando JWT (ttl=" + tokenTTL + ")");
 
         String token = Jwts.builder()
                 .subject(auth.getName())
@@ -94,12 +103,17 @@ public class AutenticacionServicio {
                 .signWith(keyPair.getPrivate())
                 .compact();
 
+        DebugPrint.show("[AuthService::login-password] JWT xerado");
+
+
         return new UsuarioDTO(usuario.username(), token, new HashSet<>(roles));
     }
 
     public UsuarioDTO login(String refreshToken) throws TokenRefrescoInvalidoException {
 
         DebugPrint.show("Entrando a login desde token de refresco");
+
+
 
         TokenRefresco token = refreshTokenRepositorio.findByToken(refreshToken)
                 .orElseThrow(() -> new TokenRefrescoInvalidoException(refreshToken));
@@ -129,14 +143,25 @@ public class AutenticacionServicio {
     }
 
 
+
     public String regenerateTokenRefresco(UsuarioDTO usuario) {
 
         DebugPrint.show("Entrando a regenerarTokenRefresco");
+        DebugPrint.show("[AuthService::regen-refresh] ENTRADA");
+        DebugPrint.show("[AuthService::regen-refresh] Usuario = " + usuario.username());
+
 
         UUID uuid = UUID.randomUUID();
         TokenRefresco refreshToken = new TokenRefresco(uuid.toString(), usuario.username(), refreshTTL.toSeconds());
+        DebugPrint.show("[AuthService::regen-refresh] Borrando refresh tokens antigos");
+
         refreshTokenRepositorio.deleteAllByUsuario(usuario.username());
+        DebugPrint.show("[AuthService::regen-refresh] Gardando novo refresh token");
+
         refreshTokenRepositorio.save(refreshToken);
+
+        DebugPrint.show("[AuthService::regen-refresh] Refresh token gardado = " + refreshToken.getToken());
+
 
         return refreshToken.getToken();
     }

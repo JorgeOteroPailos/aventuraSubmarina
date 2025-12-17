@@ -27,31 +27,50 @@ public class FiltroJWT extends OncePerRequestFilter {
     public FiltroJWT(AutenticacionServicio autenticacionServicio) {
         this.autenticacionServicio = autenticacionServicio;
     }
-
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain chain
-    ) throws ServletException, IOException, JwtException {
-        String token = request.getHeader(HttpHeaders.AUTHORIZATION);
+    ) throws ServletException, IOException {
 
-        if(token == null || !token.startsWith("Bearer ")){
+        String token = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String path = request.getRequestURI();
+
+        if (path.contains("/autenticacion")) {
             chain.doFilter(request, response);
             return;
         }
 
-        UsuarioDTO user = autenticacionServicio.parseJWT(token.replaceFirst("^Bearer ", ""));
+        if (token == null || !token.startsWith("Bearer ")) {
+            chain.doFilter(request, response);
+            return;
+        }
 
-        UsernamePasswordAuthenticationToken authentication = UsernamePasswordAuthenticationToken.authenticated(
-                user.username(),
-                user.password(),
-                user.roles().stream().map(role -> new SimpleGrantedAuthority("ROLE_"+role)).toList()
-        );
+        try {
+            UsuarioDTO user = autenticacionServicio.parseJWT(
+                    token.replaceFirst("^Bearer ", "")
+            );
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+            UsernamePasswordAuthenticationToken authentication =
+                    UsernamePasswordAuthenticationToken.authenticated(
+                            user.username(),
+                            null,
+                            user.roles().stream()
+                                    .map(SimpleGrantedAuthority::new)
+                                    .toList()
+                    );
 
-        chain.doFilter(request, response);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            chain.doFilter(request, response);
+
+        } catch (JwtException e) {
+            // 🔥 ESTA É A CLAVE
+            SecurityContextHolder.clearContext();
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        }
     }
+
 }
 

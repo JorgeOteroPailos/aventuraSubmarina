@@ -11,6 +11,7 @@ import gal.etse.ense.aventurasubmarina.Servicios.AutenticacionServicio;
 import gal.etse.ense.aventurasubmarina.Servicios.UsuarioServicio;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletRequest;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.server.Cookie;
@@ -34,7 +35,7 @@ public class AutenticacionControlador {
 
 
 
-    private static final String REFRESH_TOKEN_COOKIE_NAME = "__Secure-RefreshToken";
+    private static final String REFRESH_TOKEN_COOKIE_NAME = "RefreshToken";
     private final AutenticacionServicio autenticacion;
     private final UsuarioServicio usuarios;
     private final StringRedisTemplate redis;
@@ -63,15 +64,26 @@ public class AutenticacionControlador {
     public ResponseEntity<Void> iniciarSesion(@RequestBody UsuarioDTO usuario) {
 
         DebugPrint.show("Entrando a iniciarSesion en el controlador");
+        DebugPrint.show("[AuthController::login] ENTRADA");
+        DebugPrint.show("[AuthController::login] Usuario = " + usuario.username());
 
-        redis.opsForValue().set("aventura","");
+
+        //redis.opsForValue().set("aventura",""); //TODO wtF
 
         UsuarioDTO loggedUsuario = autenticacion.login(usuario);
+        DebugPrint.show("[AuthController::login] JWT xerado");
+
+        DebugPrint.show("[AuthController::login] Xerando refresh token");
+
         String refreshToken = autenticacion.regenerateTokenRefresco(usuario);
-        String refreshPath = MvcUriComponentsBuilder.fromMethodName(AutenticacionControlador.class, "refresh", "").build().toUri().getPath();
+        DebugPrint.show("[AuthController::login] Refresh token creado = " + refreshToken);
+
+        String refreshPath = "/autenticacion/refresh";
+        DebugPrint.show("[AuthController::login] Cookie path = " + refreshPath);
+
 
         ResponseCookie cookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE_NAME, refreshToken)
-                .secure(true)
+                .secure(false)
                 .httpOnly(true)
                 .sameSite(Cookie.SameSite.STRICT.toString())
                 .path(refreshPath)
@@ -85,11 +97,25 @@ public class AutenticacionControlador {
     }
 
     @PostMapping("refresh")
-    public ResponseEntity<Void> refresh(@CookieValue(name = REFRESH_TOKEN_COOKIE_NAME) String refreshToken) throws TokenRefrescoInvalidoException {
+    public ResponseEntity<Void> refresh(
+            @CookieValue(name = REFRESH_TOKEN_COOKIE_NAME, required = false) String refreshToken
+    ) {
+        DebugPrint.show("Entrando e refresh en el controlador");
+        DebugPrint.show("[AuthController::refresh] ENTRADA");
+        DebugPrint.show("[AuthController::refresh] CookieValue refreshToken = " + refreshToken);
+
+        if (refreshToken.isBlank()) {
+            return ResponseEntity.status(403).build();
+        }
+
+        // OJO: este "usuario.password()" aquí es el JWT (sí, el nombre del campo es raro)
         UsuarioDTO usuario = autenticacion.login(refreshToken);
 
-        return iniciarSesion(usuario);
+        return ResponseEntity.noContent()
+                .headers(h -> h.setBearerAuth(usuario.password()))
+                .build();
     }
+
 
     @PostMapping("logout")
     @PreAuthorize("isAuthenticated()")

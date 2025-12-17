@@ -2,6 +2,7 @@ package gal.etse.ense.aventurasubmarina.Servicios;
 
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.UsuarioExistenteException;
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.UsuarioNoEncontradoException;
+import gal.etse.ense.aventurasubmarina.Modelo.Rol;
 import gal.etse.ense.aventurasubmarina.Modelo.Usuario;
 import gal.etse.ense.aventurasubmarina.Modelo.UsuarioDTO;
 import gal.etse.ense.aventurasubmarina.Repositorio.UsuarioRepositorio;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.Set;
 
 @NullMarked
 @Service
@@ -77,10 +79,23 @@ public class UsuarioServicio implements UserDetailsService {
         Usuario usuario = usuarioRepositorio.findUsuarioByNombre(nombre)
                 .orElseThrow(() -> new UsernameNotFoundException(nombre));
 
+        System.out.println(usuario.getNombre() + " " + usuario.getContrasena() + " " + usuario.getRoles());
+
+        Set<Rol> roles = usuario.getRoles();
+        boolean admin=roles.stream()
+                .anyMatch(rol -> "ADMIN".equals(rol.getRolename()));
+
+        if(usuario.getRoles()==null||!admin){
+            return org.springframework.security.core.userdetails.User
+                    .withUsername(usuario.getNombre())
+                    .password(usuario.getContrasena())
+                    .roles("USER")
+                    .build();
+        }
         return org.springframework.security.core.userdetails.User
                 .withUsername(usuario.getNombre())
                 .password(usuario.getContrasena())
-                .roles("USER")
+                .roles("USER", "ADMIN")
                 .build();
     }
 

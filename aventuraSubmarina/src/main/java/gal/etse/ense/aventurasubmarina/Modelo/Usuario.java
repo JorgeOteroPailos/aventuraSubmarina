@@ -51,6 +51,12 @@ public class Usuario{
         }
     }
 
+    public void printToString(){
+        System.out.println("Nombre:"+nombre);
+        System.out.println("Contraseña:"+contrasena);
+        System.out.println(roles.toString());
+    }
+
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
