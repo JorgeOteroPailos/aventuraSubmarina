@@ -4,6 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.*?>
 
+<?import javafx.scene.image.ImageView?>
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="gal.usc.aventurasubmarinacliente.Controladores.PartidaController"
             fx:id="root"
@@ -58,6 +59,10 @@
                     fx:id="btnCuenta"
                     onAction="#onCuenta"
                     styleClass="account-button"/>
+            <Button text="Ayuda"
+                    fx:id="btnAyuda"
+                    onAction="#onAyuda"
+                    styleClass="help-button"/>
 
             <Separator />
 
@@ -139,8 +144,21 @@
 
             <!-- Dado -->
             <VBox alignment="CENTER" spacing="5">
+
+                <!-- Imágenes de los dados -->
+                <HBox spacing="5" alignment="CENTER">
+                    <ImageView fx:id="imgDado1"
+                               fitWidth="32"
+                               fitHeight="32"
+                               preserveRatio="true"/>
+                    <ImageView fx:id="imgDado2"
+                               fitWidth="32"
+                               fitHeight="32"
+                               preserveRatio="true"/>
+                </HBox>
+
                 <Label fx:id="lblDado"
-                        text="Turno:"
+                       text="Turno:"
                        styleClass="info-label"/>
 
                 <Button fx:id="btnDado"

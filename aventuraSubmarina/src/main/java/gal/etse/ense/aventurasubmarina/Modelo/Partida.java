@@ -98,7 +98,7 @@ public class Partida implements Serializable {
 
     public Partida(String id){
         tablero=new Tablero();
-        marcaTemporal= Instant.now().getNano();
+        actualizarMarcaTemporal();
         this.id=id;
 
         for(int i=0;i<maximoJugadores;i++){
@@ -111,6 +111,9 @@ public class Partida implements Serializable {
 
     }
 
+    private void actualizarMarcaTemporal(){
+        marcaTemporal=Instant.now().getNano();
+    }
 
     public synchronized void anadirJugador(Usuario u) throws JugadorYaAnadidoException {
         for (Jugador j : jugadores){
@@ -127,7 +130,7 @@ public class Partida implements Serializable {
         }
         jugadores.add(new Jugador(UsuarioDTO.from(u), colorDisponible));
         coloresUsados.set(colorDisponible, 1);
-        marcaTemporal=Instant.now().getNano();
+        actualizarMarcaTemporal();
     }
 
     public int getMarcaTemporal(){
@@ -140,7 +143,7 @@ public class Partida implements Serializable {
         }
         empezada=true;
         lanzarDados();
-        moverse(jugadores.getFirst(),dado1+dado2);
+        actualizarMarcaTemporal();
     }
 
     private void lanzarDados() {
@@ -187,6 +190,8 @@ public class Partida implements Serializable {
     }
 
     public synchronized void accion(String accion, String accionSubirBajar, String nombreJugador) throws NoEsTuTurnoException, AccionIlegalException, NoEstasEnLaPartidaException, SintaxisIncorrectaException {
+
+        actualizarMarcaTemporal();
 
         Jugador j=buscarPorNombre(nombreJugador);
 
@@ -270,8 +275,9 @@ public class Partida implements Serializable {
         reducirOxigeno(jSiguiente);
 
         //Sujeto a cambios:
-        lanzarDados();
+
         moverse(jSiguiente,dado1+dado2-jSiguiente.tesorosCargando.size());
+        lanzarDados();
 
         if(turno!=jugadores.size()-1){
             turno++;
@@ -282,6 +288,9 @@ public class Partida implements Serializable {
     }
 
     public void abandonarPartida(String idJugador) throws NoEstasEnLaPartidaException {
+
+        actualizarMarcaTemporal();
+
         Jugador jugadorEliminar=null;
         for(Jugador j:jugadores){
             if(j.getUsuario().username().equals(idJugador)){
@@ -294,7 +303,10 @@ public class Partida implements Serializable {
         }
     }
 
-    public void finalizarRonda(){
+    private void finalizarRonda(){
+
+        actualizarMarcaTemporal();
+
         tablero.oxigeno=30;
         int posicionMasAlejada=0;
 
@@ -348,7 +360,7 @@ public class Partida implements Serializable {
         }
     }
 
-    public void moverse(Jugador j, int tirada){
+    private void moverse(Jugador j, int tirada){
         if(tirada>0){
             if(j.subiendo){
                 tirada=-tirada;
@@ -378,7 +390,7 @@ public class Partida implements Serializable {
     }
 
     public void acabarPartida(){
-        //No se
+        actualizarMarcaTemporal();
         ArrayList<Jugador> ganadores=new ArrayList<>();
         int dineros=-1;
 

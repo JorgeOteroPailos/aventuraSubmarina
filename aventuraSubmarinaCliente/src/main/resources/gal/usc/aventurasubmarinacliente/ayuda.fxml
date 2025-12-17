@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="gal.usc.aventurasubmarinacliente.Controladores.AyudaController"
+            fx:id="root"
+            prefWidth="520"
+            prefHeight="380"
+            styleClass="root tutorial-popup-root">
+
+    <!-- ===== TOP BAR ===== -->
+
+
+    <!-- ===== CONTENT ===== -->
+    <center>
+        <VBox fx:id="contentBox"
+              spacing="10"
+              styleClass="tutorial-content"
+              VBox.vgrow="ALWAYS">
+            <padding>
+                <Insets top="12" right="14" bottom="12" left="14"/>
+            </padding>
+
+            <Label fx:id="lblTipTitle"
+                   text="Consejo"
+                   wrapText="true"
+                   styleClass="section-title tutorial-tip-title"/>
+
+            <Label fx:id="lblTipText"
+                   wrapText="true"
+                   maxWidth="Infinity"
+                   styleClass="info-value tutorial-tip-text"/>
+
+            <ImageView fx:id="imgTip"
+                       fitWidth="460"
+                       fitHeight="170"
+                       preserveRatio="true"
+                       smooth="true"
+                       visible="false"
+                       managed="false"
+                       styleClass="tutorial-image"/>
+        </VBox>
+    </center>
+
+    <!-- ===== NAV BAR ===== -->
+    <bottom>
+        <HBox fx:id="navBar"
+              spacing="10"
+              alignment="CENTER_LEFT"
+              styleClass="bottom-panel tutorial-nav-bar">
+            <padding>
+                <Insets top="10" right="12" bottom="10" left="12"/>
+            </padding>
+
+            <Button fx:id="btnPrev"
+                    text="◀"
+                    onAction="#onPrev"
+                    focusTraversable="false"
+                    styleClass="next-button tutorial-nav-button"/>
+
+            <Button fx:id="btnNext"
+                    text="▶"
+                    onAction="#onNext"
+                    focusTraversable="false"
+                    styleClass="next-button tutorial-nav-button"/>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <Label fx:id="lblPage"
+                   text="1/1"
+                   styleClass="info-label tutorial-page-indicator"/>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <Button fx:id="btnOmitir"
+                    text="Omitir"
+                    onAction="#onClose"
+                    focusTraversable="false"
+                    styleClass="account-button tutorial-omit-button"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

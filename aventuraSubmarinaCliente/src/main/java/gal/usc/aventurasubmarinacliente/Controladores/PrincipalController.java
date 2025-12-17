@@ -1,5 +1,6 @@
 package gal.usc.aventurasubmarinacliente.Controladores;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import gal.usc.aventurasubmarinacliente.Estado;
@@ -9,6 +10,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
@@ -112,6 +114,18 @@ public class PrincipalController {
                 System.out.println("Error unirse a una partida: " + res.statusCode());
                 System.out.println("Cuerpo del error: " + res.body());
 
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode errorJson = mapper.readTree(res.body());
+
+                String detail = errorJson.has("detail")
+                        ? errorJson.get("detail").asText()
+                        : "Error desconocido";
+
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText("Error al unirse a una partida");
+                alert.setContentText(detail);
+                alert.showAndWait();
 
                 System.out.println("STATUS=" + res.statusCode());
                 System.out.println("BODY=" + res.body());

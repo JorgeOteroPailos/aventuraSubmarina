@@ -54,23 +54,23 @@ public class Tablero {
         casillas2.get(6).tesoros.add(new Tesoro(2,7));
         casillas2.get(7).tesoros.add(new Tesoro(2,7));
 
-        casillas3.getFirst().tesoros.add(new Tesoro(2,8));
-        casillas3.get(1).tesoros.add(new Tesoro(2,8));
-        casillas3.get(2).tesoros.add(new Tesoro(2,9));
-        casillas3.get(3).tesoros.add(new Tesoro(2,9));
-        casillas3.get(4).tesoros.add(new Tesoro(2,10));
-        casillas3.get(5).tesoros.add(new Tesoro(2,10));
-        casillas3.get(6).tesoros.add(new Tesoro(2,11));
-        casillas3.get(7).tesoros.add(new Tesoro(2,11));
+        casillas3.getFirst().tesoros.add(new Tesoro(3,8));
+        casillas3.get(1).tesoros.add(new Tesoro(3,8));
+        casillas3.get(2).tesoros.add(new Tesoro(3,9));
+        casillas3.get(3).tesoros.add(new Tesoro(3,9));
+        casillas3.get(4).tesoros.add(new Tesoro(3,10));
+        casillas3.get(5).tesoros.add(new Tesoro(3,10));
+        casillas3.get(6).tesoros.add(new Tesoro(3,11));
+        casillas3.get(7).tesoros.add(new Tesoro(3,11));
 
-        casillas4.getFirst().tesoros.add(new Tesoro(2,12));
-        casillas4.get(1).tesoros.add(new Tesoro(2,12));
-        casillas4.get(2).tesoros.add(new Tesoro(2,13));
-        casillas4.get(3).tesoros.add(new Tesoro(2,13));
-        casillas4.get(4).tesoros.add(new Tesoro(2,14));
-        casillas4.get(5).tesoros.add(new Tesoro(2,14));
-        casillas4.get(6).tesoros.add(new Tesoro(2,15));
-        casillas4.get(7).tesoros.add(new Tesoro(2,15));
+        casillas4.getFirst().tesoros.add(new Tesoro(4,12));
+        casillas4.get(1).tesoros.add(new Tesoro(4,12));
+        casillas4.get(2).tesoros.add(new Tesoro(4,13));
+        casillas4.get(3).tesoros.add(new Tesoro(4,13));
+        casillas4.get(4).tesoros.add(new Tesoro(4,14));
+        casillas4.get(5).tesoros.add(new Tesoro(4,14));
+        casillas4.get(6).tesoros.add(new Tesoro(4,15));
+        casillas4.get(7).tesoros.add(new Tesoro(4,15));
 
         Collections.shuffle(casillas1);
         Collections.shuffle(casillas2);

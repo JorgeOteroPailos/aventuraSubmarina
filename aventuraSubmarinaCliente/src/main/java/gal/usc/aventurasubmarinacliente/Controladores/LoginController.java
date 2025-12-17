@@ -20,7 +20,6 @@ import java.net.http.HttpResponse;
 import java.util.Optional;
 
 import gal.usc.aventurasubmarinacliente.modelo.Usuario;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class LoginController {
@@ -83,7 +82,7 @@ public class LoginController {
 
     public static void abrirLogin() throws IOException {
         FXMLLoader loader = new FXMLLoader(
-                LoginController.class.getResource("/gal/usc/aventurasubmarinacliente/hello-view.fxml")
+                LoginController.class.getResource("/gal/usc/aventurasubmarinacliente/login.fxml")
         );
 
         Parent root = loader.load();
