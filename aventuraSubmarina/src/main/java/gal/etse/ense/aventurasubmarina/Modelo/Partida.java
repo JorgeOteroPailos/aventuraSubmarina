@@ -368,6 +368,8 @@ public class Partida implements Serializable {
 
             int posicionDeseada=j.posicion+tirada;
 
+
+
             while(tablero.casillas.get(posicionDeseada).jugadorPresente!=null){
                 if(j.subiendo) posicionDeseada--;
                 else posicionDeseada++;

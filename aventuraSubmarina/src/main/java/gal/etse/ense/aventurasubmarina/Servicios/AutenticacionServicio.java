@@ -105,7 +105,7 @@ public class AutenticacionServicio {
 
         DebugPrint.show("[AuthService::login-password] JWT xerado");
 
-
+        System.out.println(roles);
         return new UsuarioDTO(usuario.username(), token, new HashSet<>(roles));
     }
 
