@@ -3,8 +3,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.*?>
-
 <?import javafx.scene.image.ImageView?>
+
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="gal.usc.aventurasubmarinacliente.Controladores.PartidaController"
             fx:id="root"
@@ -17,7 +17,6 @@
               alignment="CENTER_LEFT"
               spacing="20"
               styleClass="top-bar">
-
             <padding>
                 <Insets top="10" right="10" bottom="10" left="10"/>
             </padding>
@@ -29,20 +28,61 @@
         </HBox>
     </top>
 
-    <!-- ===== TABLERO CENTRAL ===== -->
+    <!-- ===== CENTER (HÍBRIDO) ===== -->
     <center>
-        <ScrollPane fx:id="scrollBoard"
-                    fitToWidth="true"
-                    fitToHeight="true"
-                    style="-fx-background: turquoise;">
-            <content>
-                <Pane fx:id="boardPane"
-                      prefWidth="500"
-                      prefHeight="250" > <!-- ¡IMPORTANTE! -->
-                <!-- Las casillas se crearán aquí -->
-                </Pane>
-            </content>
-        </ScrollPane>
+        <StackPane>
+            <ScrollPane fx:id="scrollBoard"
+                        fitToWidth="true"
+                        fitToHeight="true">
+                <content>
+                    <VBox fx:id="boardContent"
+                          spacing="18"
+                          fillWidth="true">
+                        <padding>
+                            <Insets top="18" right="18" bottom="18" left="18"/>
+                        </padding>
+
+                        <!-- FILA SUPERIOR: OXÍXENO + SUBMARINO (CASILLA 0) -->
+                        <HBox fx:id="headerRow"
+                              spacing="15"
+                              alignment="TOP_LEFT">
+
+                            <VBox fx:id="oxygenPanel"
+                                  prefWidth="170"
+                                  minWidth="170"
+                                  alignment="CENTER"
+                                  spacing="10"
+                                  styleClass="oxygen-panel">
+
+                                <ImageView fx:id="imgBombona"
+                                           fitWidth="120"
+                                           preserveRatio="true"/>
+
+                                <Label fx:id="lblOxigeno"
+                                       text="30"
+                                       styleClass="oxygen-label"/>
+
+                                <Label text="O₂"
+                                       styleClass="oxygen-unit"/>
+                            </VBox>
+
+                            <!-- Aquí vai a casilla 0 (submarino) xerada en código -->
+                            <StackPane fx:id="cell0Container"
+                                       HBox.hgrow="ALWAYS"
+                                       minHeight="170"
+                                       prefHeight="190"
+                                       styleClass="cell0-container"/>
+                        </HBox>
+
+                        <!-- GRID CASILLAS 1..48 -->
+                        <GridPane fx:id="gridBoard"
+                                  hgap="12"
+                                  vgap="12"
+                                  styleClass="grid-board"/>
+                    </VBox>
+                </content>
+            </ScrollPane>
+        </StackPane>
     </center>
 
     <!-- ===== PANEL DERECHO ===== -->
@@ -51,7 +91,6 @@
               spacing="15"
               prefWidth="220"
               styleClass="right-panel">
-
             <padding>
                 <Insets top="15" right="15" bottom="15" left="15"/>
             </padding>
@@ -70,66 +109,34 @@
             <Button text="Iniciar partida"
                     fx:id="btnIniciarPartida"
                     onAction="#onIniciarPartida"
-                    styleClass="account-button"
-            />
+                    styleClass="account-button"/>
 
-            <Label text="Turno:"
-                   styleClass="info-label"/>
-            <Label text="Jugador1"
-                   fx:id="lblTurnoJugador"
-                   styleClass="info-value"/>
+            <Label text="Turno:" styleClass="info-label"/>
+            <Label text="Jugador1" fx:id="lblTurnoJugador" styleClass="info-value"/>
 
-            <Label text="Tesoros:"
-                   styleClass="info-label"/>
-            <Label text="2"
-                   fx:id="lblTesoros"
-                   styleClass="info-value"/>
+            <Label text="Tesoros:" styleClass="info-label"/>
+            <Label text="2" fx:id="lblTesoros" styleClass="info-value"/>
 
-            <Label text="Ronda:"
-                   styleClass="info-label"/>
-            <Label text="1"
-                   fx:id="lblRonda"
-                   styleClass="info-value"/>
+            <Label text="Ronda:" styleClass="info-label"/>
+            <Label text="1" fx:id="lblRonda" styleClass="info-value"/>
 
             <Separator />
 
             <Label text="Tabla puntuaciones global"
                    styleClass="section-title"/>
 
-            <VBox fx:id="scoreBoard"
-                  spacing="5"
-                  styleClass="score-board">
-
-                <Label text="Jugador1:"
-                       fx:id="lblJugador1Score"
-                       styleClass="score-label"/>
-
-                <Label text=" "
-                       fx:id="lblJugador2Score"
-                       styleClass="score-label"/>
-
-                <Label text=" "
-                       fx:id="lblJugador3Score"
-                       styleClass="score-label"/>
-
-                <Label text=" "
-                       fx:id="lblJugador4Score"
-                       styleClass="score-label"/>
-
-                <Label text=" "
-                       fx:id="lblJugador5Score"
-                       styleClass="score-label"/>
-
-                <Label text=" "
-                       fx:id="lblJugador6Score"
-                       styleClass="score-label"/>
-
+            <VBox fx:id="scoreBoard" spacing="5" styleClass="score-board">
+                <Label text="Jugador1:" fx:id="lblJugador1Score" styleClass="score-label"/>
+                <Label text=" " fx:id="lblJugador2Score" styleClass="score-label"/>
+                <Label text=" " fx:id="lblJugador3Score" styleClass="score-label"/>
+                <Label text=" " fx:id="lblJugador4Score" styleClass="score-label"/>
+                <Label text=" " fx:id="lblJugador5Score" styleClass="score-label"/>
+                <Label text=" " fx:id="lblJugador6Score" styleClass="score-label"/>
             </VBox>
 
             <Label text=" "
                    fx:id="lblError"
-                   styleClass="error-label"
-                   style="-fx-text-fill: #cc0000;" />
+                   styleClass="error-label"/>
         </VBox>
     </right>
 
@@ -145,17 +152,9 @@
 
             <!-- Dado -->
             <VBox alignment="CENTER" spacing="5">
-
-                <!-- Imágenes de los dados -->
                 <HBox spacing="5" alignment="CENTER">
-                    <ImageView fx:id="imgDado1"
-                               fitWidth="32"
-                               fitHeight="32"
-                               preserveRatio="true"/>
-                    <ImageView fx:id="imgDado2"
-                               fitWidth="32"
-                               fitHeight="32"
-                               preserveRatio="true"/>
+                    <ImageView fx:id="imgDado1" fitWidth="32" fitHeight="32" preserveRatio="true"/>
+                    <ImageView fx:id="imgDado2" fitWidth="32" fitHeight="32" preserveRatio="true"/>
                 </HBox>
 
                 <Button fx:id="btnDado"
@@ -165,38 +164,16 @@
             </VBox>
 
             <!-- Movimiento -->
-            <VBox spacing="10"
-                  styleClass="movement-panel">
-
-                <ToggleButton text="Subir"
-                        fx:id="toggleSubir"
-                        onAction="#onSubir"
-                        styleClass="action-button"/>
-
-                <ToggleButton text="Bajar"
-                        fx:id="toggleBajar"
-                        onAction="#onBajar"
-                        styleClass="action-button"/>
+            <VBox spacing="10" styleClass="movement-panel">
+                <ToggleButton text="Subir" fx:id="toggleSubir" onAction="#onSubir" styleClass="action-button"/>
+                <ToggleButton text="Bajar" fx:id="toggleBajar" onAction="#onBajar" styleClass="action-button"/>
             </VBox>
 
             <!-- Acción -->
-            <VBox spacing="10"
-                  styleClass="interaction-panel">
-
-                <ToggleButton text="Coger"
-                        fx:id="toggleCoger"
-                        onAction="#onCoger"
-                        styleClass="action-button"/>
-
-                <ToggleButton text="Dejar"
-                        fx:id="toggleDejar"
-                        onAction="#onDejar"
-                        styleClass="action-button"/>
-
-                <ToggleButton text="Nada"
-                        fx:id="toggleNada"
-                        onAction="#onNada"
-                        styleClass="action-button"/>
+            <VBox spacing="10" styleClass="interaction-panel">
+                <ToggleButton text="Coger" fx:id="toggleCoger" onAction="#onCoger" styleClass="action-button"/>
+                <ToggleButton text="Dejar" fx:id="toggleDejar" onAction="#onDejar" styleClass="action-button"/>
+                <ToggleButton text="Nada"  fx:id="toggleNada"  onAction="#onNada"  styleClass="action-button"/>
             </VBox>
 
             <!-- Siguiente -->
@@ -204,7 +181,6 @@
                     fx:id="btnSiguiente"
                     onAction="#onSiguiente"
                     styleClass="next-button"/>
-
         </HBox>
     </bottom>
 
