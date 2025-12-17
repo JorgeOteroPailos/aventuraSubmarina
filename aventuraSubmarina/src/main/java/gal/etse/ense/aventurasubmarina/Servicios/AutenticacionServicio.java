@@ -43,7 +43,7 @@ public class AutenticacionServicio {
     private final RolesRepositorio rolesRepositorio;
     private final TokenRefrescoRepositorio refreshTokenRepositorio;
 
-    @Value("${auth.jwt.ttl:PT15M}")
+    @Value("${auth.jwt.ttl:PT30S}")
     private Duration tokenTTL;
 
     @Value("${auth.refresh.ttl:PT72H}")
@@ -101,16 +101,33 @@ public class AutenticacionServicio {
 
         DebugPrint.show("Entrando a login desde token de refresco");
 
-        Optional<TokenRefresco> token = refreshTokenRepositorio.findByToken(refreshToken);
+        TokenRefresco token = refreshTokenRepositorio.findByToken(refreshToken)
+                .orElseThrow(() -> new TokenRefrescoInvalidoException(refreshToken));
 
-        if (token.isPresent()) {
-            var usuario = usuarioRepositorio.findUsuarioByNombre(token.get().getUsuario()).orElseThrow(() -> new UsuarioNoEncontradoException(token.get().getUsuario()));
+        var usuario = usuarioRepositorio.findUsuarioByNombre(token.getUsuario())
+                .orElseThrow(() -> new UsuarioNoEncontradoException(token.getUsuario()));
 
-            return login(UsuarioDTO.from(usuario));
-        }
+        List<String> roles = usuario.getRoles()
+                .stream()
+                .map(r -> "ROLE_" + r.getRolename())
+                .toList();
 
-        throw new TokenRefrescoInvalidoException(refreshToken);
+        String jwt = Jwts.builder()
+                .subject(usuario.getNombre())
+                .issuedAt(Date.from(Instant.now()))
+                .expiration(Date.from(Instant.now().plus(tokenTTL)))
+                .notBefore(Date.from(Instant.now()))
+                .claim("roles", roles)
+                .signWith(keyPair.getPrivate())
+                .compact();
+
+        return new UsuarioDTO(
+                usuario.getNombre(),
+                jwt,
+                new HashSet<>(roles)
+        );
     }
+
 
     public String regenerateTokenRefresco(UsuarioDTO usuario) {
 

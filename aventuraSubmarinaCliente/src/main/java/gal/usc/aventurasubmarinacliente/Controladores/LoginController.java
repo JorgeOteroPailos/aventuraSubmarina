@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.HashSet;
 import java.util.Optional;
 
 import gal.usc.aventurasubmarinacliente.modelo.Usuario;
@@ -39,7 +40,9 @@ public class LoginController {
 
     @FXML
     private void onLoginClicked() throws JsonProcessingException {
-        Usuario u=new Usuario(usernameField.getText(),passwordField.getText(),null);
+        HashSet<String> roles = new HashSet<>();
+        roles.add("USER");
+        Usuario u=new Usuario(usernameField.getText(),passwordField.getText(),roles);
         String jsonUsuario = mapper.writeValueAsString(u);
 
         HttpRequest req = HttpRequest.newBuilder()

@@ -1,12 +1,15 @@
 package gal.etse.ense.aventurasubmarina.Modelo;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.TimeToLive;
 
-
+@RedisHash("refresh_tokens")
 public class TokenRefresco {
     @Id
     private String token;
     private String usuario;
+    @TimeToLive
     private long ttl;
 
     public TokenRefresco() { }

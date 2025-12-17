@@ -3,6 +3,7 @@ package gal.etse.ense.aventurasubmarina.Controlador;
 
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.TokenRefrescoInvalidoException;
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.UsuarioExistenteException;
+import gal.etse.ense.aventurasubmarina.Modelo.Rol;
 import gal.etse.ense.aventurasubmarina.Modelo.Usuario;
 import gal.etse.ense.aventurasubmarina.Modelo.UsuarioDTO;
 import gal.etse.ense.aventurasubmarina.Utils.DebugPrint;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.server.Cookie;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
@@ -22,6 +24,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
 import java.time.Duration;
+import java.util.HashSet;
+import java.util.Set;
 
 @NullMarked
 @RestController
@@ -33,11 +37,14 @@ public class AutenticacionControlador {
     private static final String REFRESH_TOKEN_COOKIE_NAME = "__Secure-RefreshToken";
     private final AutenticacionServicio autenticacion;
     private final UsuarioServicio usuarios;
+    private final StringRedisTemplate redis;
+
 
     @Autowired
-    public AutenticacionControlador(AutenticacionServicio autenticacion, UsuarioServicio usuarios) {
+    public AutenticacionControlador(AutenticacionServicio autenticacion, UsuarioServicio usuarios, StringRedisTemplate redis) {
         this.autenticacion = autenticacion;
         this.usuarios = usuarios;
+        this.redis=redis;
     }
 
 
@@ -52,16 +59,19 @@ public class AutenticacionControlador {
     )
 
     //@PreAuthorize("isAnonymous()")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Void> iniciarSesion(@RequestBody UsuarioDTO usuario) {
 
         DebugPrint.show("Entrando a iniciarSesion en el controlador");
+
+        redis.opsForValue().set("aventura","");
 
         UsuarioDTO loggedUsuario = autenticacion.login(usuario);
         String refreshToken = autenticacion.regenerateTokenRefresco(usuario);
         String refreshPath = MvcUriComponentsBuilder.fromMethodName(AutenticacionControlador.class, "refresh", "").build().toUri().getPath();
 
         ResponseCookie cookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE_NAME, refreshToken)
-                .secure(false) //TODO dice chaty q en local no puede ser true esto
+                .secure(true)
                 .httpOnly(true)
                 .sameSite(Cookie.SameSite.STRICT.toString())
                 .path(refreshPath)
@@ -100,7 +110,10 @@ public class AutenticacionControlador {
     )
 
     public ResponseEntity<Usuario> register(@RequestBody UsuarioDTO usuario) throws UsuarioExistenteException {
-        Usuario createdUsuario = usuarios.crearUsuario(usuario);
+        Usuario createdUsuario;
+
+        createdUsuario = usuarios.crearUsuario(usuario);
+
 
         return ResponseEntity.created(MvcUriComponentsBuilder.fromMethodName(UsuariosControlador.class, "getUsuario", usuario.username()).build().toUri())
                 .body(createdUsuario);

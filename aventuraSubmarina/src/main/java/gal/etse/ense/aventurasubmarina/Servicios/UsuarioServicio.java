@@ -39,7 +39,7 @@ public class UsuarioServicio implements UserDetailsService {
         }
 
         String password=(passwordEncoder.encode(u.password()));
-        Usuario u2=new Usuario(u.username());
+        Usuario u2=new Usuario(u.username(),u.roles()!=null);
         u2.setContrasena(password);
 
         return usuarioRepositorio.save(u2);

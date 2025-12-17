@@ -1,5 +1,6 @@
 package gal.etse.ense.aventurasubmarina.Modelo;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -16,7 +17,7 @@ public class Usuario{
 
     private Set<Rol> roles;
 
-    public Usuario(String nombre, String contrasena, Set<Rol> roles){
+    public Usuario(String nombre, String contrasena, @NonNull Set<Rol> roles){
         this.setNombre(nombre);
         this.contrasena = contrasena;
         this.roles=roles;
@@ -26,11 +27,28 @@ public class Usuario{
 
     }
 
+    public Usuario(String nombre, String contrasena){
+        this.nombre=nombre;
+        this.contrasena = contrasena;
+        this.roles=new HashSet<>();
+        roles.add(new Rol("USER", null, null));
+    }
+
 
     public Usuario(String nombre){
         this.nombre=nombre;
         this.roles=new HashSet<>();
         roles.add(new Rol("USER", null, null));
+    }
+
+    public Usuario(String nombre, boolean admin){
+        this.nombre=nombre;
+        this.roles=new HashSet<>();
+        if(admin){
+            roles.add(new Rol("ADMIN", null, null));
+        }else{
+            roles.add(new Rol("USER", null, null));
+        }
     }
 
     public void setNombre(String nombre) {
@@ -49,5 +67,9 @@ public class Usuario{
     }
     public Set<Rol> getRoles(){
         return Objects.requireNonNullElseGet(roles, HashSet::new);
+    }
+
+    public void setRoles(Set<Rol> roles) {
+        this.roles = roles;
     }
 }
