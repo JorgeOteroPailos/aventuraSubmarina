@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
@@ -33,6 +34,7 @@ public class UsuariosControlador {
     // Habría patch o put, pero de momento los usuarios no tienen atributos
     // suficientes para que esta lógica tenga sentido
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Void> eliminarUsuario(@PathVariable String id, @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token) {
 
         UsuarioDTO usuario = autenticacion.parseJWT(token.replaceFirst("^Bearer ", ""));
@@ -58,6 +60,7 @@ public class UsuariosControlador {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<UsuarioDTO>> getUsuariosTodos(Pageable pageable){
         Page<UsuarioDTO> lista = usuarioServicio.getUsuariosTodos(pageable);
         return new ResponseEntity<>(lista, HttpStatus.OK);

@@ -8,6 +8,7 @@ import gal.etse.ense.aventurasubmarina.Servicios.PartidaServicio;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +27,7 @@ public class PartidaControlador {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Partida> crearPartida(Authentication autenticacion) throws JugadorYaAnadidoException {
 
         Partida partidaCreada = partidaServicio.crearPartida(new Usuario(autenticacion.getName()));
@@ -33,12 +35,14 @@ public class PartidaControlador {
     }
 
     @PatchMapping("/{id}/jugadores")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Partida> unirseAPartida(@PathVariable String id, Authentication autenticacion) throws PartidaNoEncontradaException, JugadorYaAnadidoException {
         Partida p = partidaServicio.anadirJugador(id, new Usuario(autenticacion.getName()));
         return new ResponseEntity<>(p, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Partida> getEstadoPartida(
             @PathVariable String id,
             @RequestParam(required = false) int selloTemporal)
@@ -55,6 +59,7 @@ public class PartidaControlador {
     }
 
     @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Partida> iniciarPartida(@PathVariable String id, Authentication autenticacion) throws PartidaNoEncontradaException, PartidaYaIniciadaException {
 
         System.out.println("Entrando a iniciarPartida");
@@ -64,6 +69,7 @@ public class PartidaControlador {
     }
 
     @DeleteMapping("/{idPartida}/jugadores/{idJugador}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Void> abandonarPartida(
             @PathVariable String idPartida,
             @PathVariable String idJugador,
@@ -78,6 +84,7 @@ public class PartidaControlador {
 
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> accion(@RequestBody AccionDTO accionDTO, @PathVariable String id, Authentication autenticacion)  {
 
         System.out.println("Entrando a accion");

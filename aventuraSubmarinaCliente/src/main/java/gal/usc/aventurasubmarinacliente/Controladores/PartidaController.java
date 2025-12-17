@@ -221,6 +221,8 @@ public class PartidaController {
         }
     }
 
+    private Timeline timeline;
+
     public void onAyuda() throws IOException {
         AyudaController.show(btnCuenta.getScene().getWindow());
     }
@@ -255,7 +257,7 @@ public class PartidaController {
 
         crearTablero();
 
-        Timeline timeline = new Timeline(
+        timeline = new Timeline(
                 new KeyFrame(Duration.seconds(2), event -> actualizarDatos())
         );
         timeline.setCycleCount(Timeline.INDEFINITE);
@@ -289,27 +291,7 @@ public class PartidaController {
             }
         };
 
-        // Casilla 0 (submarino)
-        StackPane cell0 = new StackPane();
-        cell0.setId("cell-0");
-
-        Rectangle rect0 = new Rectangle();
-        rect0.widthProperty().bind(cell0Container.widthProperty());
-        rect0.heightProperty().bind(cell0Container.heightProperty());
-        rect0.setArcWidth(35);
-        rect0.setArcHeight(35);
-        rect0.setFill(Color.web("#CFF5EE"));
-        rect0.setStroke(Color.web("#0B3C5D"));
-        rect0.setStrokeWidth(2);
-
-        Label label0 = new Label("0");
-        label0.setStyle("-fx-font-weight: bold; -fx-text-fill: #0B3C5D; -fx-font-size: 18px;");
-
-        cell0.getChildren().addAll(rect0, label0);
-        cell0.setUserData(rect0);
-
-        cell0Container.getChildren().add(cell0);
-        casillas.add(cell0); // index 0
+        dibujarSubmarino();
 
         // Casillas 1..48 no GridPane
         for (int i = 1; i < TOTAL_CASILLAS; i++) {
@@ -422,7 +404,19 @@ public class PartidaController {
 
         actualizarDados(Estado.partida.dado1(), Estado.partida.dado2());
 
-        for (int i = 0; i < Estado.partida.tablero().casillas().size(); i++) {
+        // ===== FICHAS NO SUBMARINO (casilla 0) =====
+        StackPane cell0 = casillas.get(0);
+        HBox fichasSub = (HBox) cell0.getProperties().get("fichasSubmarino");
+
+        fichasSub.getChildren().clear();
+
+        for (Jugador j : Estado.partida.jugadores()) {
+            if (j.posicion() == 0) {
+                fichasSub.getChildren().add(obtenerFicha(j));
+            }
+        }
+
+        for (int i = 1; i < Estado.partida.tablero().casillas().size(); i++) {
             StackPane casilla = casillas.get(i);
 
             limpiarOverlays(casilla);
@@ -560,5 +554,50 @@ public class PartidaController {
     private void cerrar() {
         Stage actual = (Stage) btnCuenta.getScene().getWindow();
         actual.close();
+        if (timeline != null) {
+            timeline.stop();
+        }
     }
+
+    private void dibujarSubmarino() {
+
+        StackPane cell0 = new StackPane();
+        cell0.setId("cell-0");
+
+        // Imagen del submarino
+        ImageView submarino = new ImageView(
+                new Image(Objects.requireNonNull(
+                        getClass().getResourceAsStream(
+                                "/gal/usc/aventurasubmarinacliente/imagenes/submarino.png"
+                        ),
+                        "No se encontró submarino.png"
+                ))
+        );
+
+        submarino.fitWidthProperty().bind(cell0Container.widthProperty());
+        submarino.fitHeightProperty().bind(cell0Container.heightProperty());
+        submarino.setPreserveRatio(true);
+        submarino.setSmooth(true);
+
+        // Contenedor de fichas encima del submarino
+        HBox fichasSubmarino = new HBox(6);
+        fichasSubmarino.setAlignment(javafx.geometry.Pos.CENTER);
+        fichasSubmarino.setMouseTransparent(true);
+
+        // Colocación: centradas y un poco hacia abajo
+        StackPane.setAlignment(fichasSubmarino, javafx.geometry.Pos.CENTER);
+        StackPane.setMargin(fichasSubmarino, new Insets(0, 0, 12, 0));
+
+        cell0.getChildren().addAll(submarino, fichasSubmarino);
+
+        // Guardamos referencias
+        cell0.setUserData(submarino);
+        cell0.getProperties().put("fichasSubmarino", fichasSubmarino);
+
+        cell0Container.getChildren().add(cell0);
+
+        if (casillas.isEmpty()) casillas.add(cell0);
+        else casillas.set(0, cell0);
+    }
+
 }

@@ -1,13 +1,17 @@
 package gal.etse.ense.aventurasubmarina.Modelo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.ArrayList;
 import java.util.List;
 
 //No debe confundirse con Usuario: un Jugador es la instancia concreta de un usuario en una partida, como su ficha
 public class Jugador {
+
+    @JsonIgnore
+    public boolean salioDelSubmarino=false;
+
     private UsuarioDTO usuario;
-
-
 
     public int posicion=0;
 

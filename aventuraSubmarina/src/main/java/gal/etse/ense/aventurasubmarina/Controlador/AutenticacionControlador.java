@@ -1,9 +1,7 @@
 package gal.etse.ense.aventurasubmarina.Controlador;
 
 
-import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.TokenRefrescoInvalidoException;
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.UsuarioExistenteException;
-import gal.etse.ense.aventurasubmarina.Modelo.Rol;
 import gal.etse.ense.aventurasubmarina.Modelo.Usuario;
 import gal.etse.ense.aventurasubmarina.Modelo.UsuarioDTO;
 import gal.etse.ense.aventurasubmarina.Utils.DebugPrint;
@@ -11,41 +9,35 @@ import gal.etse.ense.aventurasubmarina.Servicios.AutenticacionServicio;
 import gal.etse.ense.aventurasubmarina.Servicios.UsuarioServicio;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.servlet.http.HttpServletRequest;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.server.Cookie;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
 import java.time.Duration;
-import java.util.HashSet;
-import java.util.Set;
 
 @NullMarked
 @RestController
 @RequestMapping("autenticacion")
 public class AutenticacionControlador {
 
-
-
     private static final String REFRESH_TOKEN_COOKIE_NAME = "RefreshToken";
     private final AutenticacionServicio autenticacion;
     private final UsuarioServicio usuarios;
-    private final StringRedisTemplate redis;
 
 
     @Autowired
-    public AutenticacionControlador(AutenticacionServicio autenticacion, UsuarioServicio usuarios, StringRedisTemplate redis) {
+    public AutenticacionControlador(AutenticacionServicio autenticacion, UsuarioServicio usuarios) {
         this.autenticacion = autenticacion;
         this.usuarios = usuarios;
-        this.redis=redis;
     }
 
 
@@ -60,7 +52,6 @@ public class AutenticacionControlador {
     )
 
     //@PreAuthorize("isAnonymous()")
-    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Void> iniciarSesion(@RequestBody UsuarioDTO usuario) {
 
         DebugPrint.show("Entrando a iniciarSesion en el controlador");
@@ -68,7 +59,6 @@ public class AutenticacionControlador {
         DebugPrint.show("[AuthController::login] Usuario = " + usuario.username());
 
 
-        //redis.opsForValue().set("aventura",""); //TODO wtF
 
         UsuarioDTO loggedUsuario = autenticacion.login(usuario);
         DebugPrint.show("[AuthController::login] JWT xerado");
@@ -81,6 +71,8 @@ public class AutenticacionControlador {
         String refreshPath = "/autenticacion/refresh";
         DebugPrint.show("[AuthController::login] Cookie path = " + refreshPath);
 
+        DebugPrint.show("ROLES DEL USUARIO: "+loggedUsuario.roles());
+
 
         ResponseCookie cookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE_NAME, refreshToken)
                 .secure(false)
@@ -90,10 +82,15 @@ public class AutenticacionControlador {
                 .maxAge(Duration.ofDays(7))
                 .build();
 
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        auth.getAuthorities().forEach(a -> System.out.println(a.getAuthority()));
+
         return ResponseEntity.noContent()
                 .headers(headers -> headers.setBearerAuth(loggedUsuario.password()))
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .build();
+
+
     }
 
     @PostMapping("refresh")

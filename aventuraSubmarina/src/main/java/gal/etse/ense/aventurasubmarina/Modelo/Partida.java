@@ -191,6 +191,7 @@ public class Partida implements Serializable {
 
     public synchronized void accion(String accion, String accionSubirBajar, String nombreJugador) throws NoEsTuTurnoException, AccionIlegalException, NoEstasEnLaPartidaException, SintaxisIncorrectaException {
 
+
         actualizarMarcaTemporal();
 
         Jugador j=buscarPorNombre(nombreJugador);
@@ -214,6 +215,19 @@ public class Partida implements Serializable {
         if(j.llegoAlSubmarino){
             throw new AccionIlegalException("accion","Ya llegaste al submarino, espera a tus compañeros");
         }
+
+        switch(accionSubirBajar){
+            case "bajar":
+                if(j.subiendo) throw new AccionIlegalException("bajar","No puedes decidir bajar si ya estás subiendo");
+                break;
+            case "subir":
+                j.subiendo=true;
+
+                break;
+            default:
+                throw new SintaxisIncorrectaException("Comando no reconocido: "+accion);
+        }
+        moverse(j,dado1+dado2-j.tesorosCargando.size());
 
         switch(accion){
             case "nada":
@@ -249,40 +263,38 @@ public class Partida implements Serializable {
                 throw new SintaxisIncorrectaException("Comando no reconocido: "+accion);
         }
 
-        switch(accionSubirBajar){
-            case "bajar":
-                if(j.subiendo) throw new AccionIlegalException("bajar","No puedes decidir bajar si ya estás subiendo");
+        boolean todosAcabaron=true;
+        for(Jugador jugador : jugadores){
+            System.out.println(jugador.llegoAlSubmarino);
+            if (!jugador.llegoAlSubmarino) {
+                todosAcabaron = false;
                 break;
-            case "subir":
-                j.subiendo=true;
-                break;
-            default:
-                throw new SintaxisIncorrectaException("Comando no reconocido: "+accion);
+            }
         }
-
-        if(tablero.oxigeno<1){
+        if(tablero.oxigeno<1||todosAcabaron){
             finalizarRonda();
         }
 
-        Jugador jSiguiente;
-        if (jugadorInicial!=null && rondaAcabada){
-            jSiguiente=jugadorInicial;
-        }else if(jugadores.getLast().getUsuario().username().equals(j.getUsuario().username())){
-            jSiguiente=jugadores.getFirst();
-        }
-        else jSiguiente=jugadores.get(jugadores.indexOf(j)+1);
 
-        reducirOxigeno(jSiguiente);
+        reducirOxigeno(j);
 
         //Sujeto a cambios:
 
-        moverse(jSiguiente,dado1+dado2-jSiguiente.tesorosCargando.size());
         lanzarDados();
+
+        if(tablero.oxigeno<1||todosAcabaron){
+            finalizarRonda();
+        }
 
         if(turno!=jugadores.size()-1){
             turno++;
         }else{
             turno=0;
+        }
+
+        while(jugadores.get(turno).llegoAlSubmarino&&!jugadores.get(turno).getUsuario().username().equals(j.getUsuario().username())){
+            turno++;
+            if(turno==jugadores.size()) turno=0;//mangui ejecuta ahi tio
         }
 
     }
@@ -311,6 +323,7 @@ public class Partida implements Serializable {
         int posicionMasAlejada=0;
 
         for(Jugador j: jugadores) {
+            j.salioDelSubmarino=false;
             if(j.posicion==0) {
                 for (List<Tesoro> tesoros : j.tesorosCargando) {
                     for (Tesoro t : tesoros) {
@@ -361,34 +374,42 @@ public class Partida implements Serializable {
     }
 
     private void moverse(Jugador j, int tirada){
-        if(tirada>0){
+        System.out.println("Entré a moverse y llegó al submarino es "+j.llegoAlSubmarino+" y mi posición es: "+j.posicion);
+        if(!j.salioDelSubmarino||j.posicion!=0){
+
+            rondaAcabada=false;
             if(j.subiendo){
                 tirada=-tirada;
             }
 
+            int posicionAntigua=j.posicion;
+
             int posicionDeseada=j.posicion+tirada;
 
+            if(posicionDeseada>=0&&posicionDeseada<tablero.casillas.size()) {
+                while (tablero.casillas.get(posicionDeseada).jugadorPresente != null) {
+                    if (j.subiendo) posicionDeseada--;
+                    else posicionDeseada++;
 
-
-            while(tablero.casillas.get(posicionDeseada).jugadorPresente!=null){
-                if(j.subiendo) posicionDeseada--;
-                else posicionDeseada++;
-
-                if(posicionDeseada<0||posicionDeseada>tablero.casillas.size()-1) break;
+                    if (posicionDeseada <= 0 || posicionDeseada > tablero.casillas.size() - 1) break;
+                }
             }
 
             if(posicionDeseada>tablero.casillas.size()-1){
                 posicionDeseada=j.posicion;
-            }else if(posicionDeseada<0){
+            }else if(posicionDeseada<=0){
                 posicionDeseada=0;
                 j.llegoAlSubmarino=true;
             }
 
-            tablero.casillas.get(j.posicion).jugadorPresente=null;
+            tablero.casillas.get(posicionAntigua).jugadorPresente=null;
             j.posicion=posicionDeseada;
             tablero.casillas.get(j.posicion).jugadorPresente=j;
 
+            j.salioDelSubmarino=true;
         }
+        System.out.println("Salgo de moverse y llegó al submarino es "+j.llegoAlSubmarino+" y mi posición es: "+j.posicion);
+
     }
 
     public void acabarPartida(){

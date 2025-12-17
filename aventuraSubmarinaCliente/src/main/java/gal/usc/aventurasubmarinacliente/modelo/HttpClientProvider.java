@@ -17,8 +17,7 @@ public final class HttpClientProvider {
     private static final HttpClient CLIENT;
 
     static {
-        COOKIE_MANAGER = new CookieManager();
-        COOKIE_MANAGER.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
+        COOKIE_MANAGER = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
 
         CLIENT = HttpClient.newBuilder()
                 .cookieHandler(COOKIE_MANAGER)

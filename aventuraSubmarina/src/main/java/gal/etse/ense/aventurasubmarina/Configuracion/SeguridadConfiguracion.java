@@ -3,6 +3,7 @@ package gal.etse.ense.aventurasubmarina.Configuracion;
 import gal.etse.ense.aventurasubmarina.Filtros.FiltroJWT;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
