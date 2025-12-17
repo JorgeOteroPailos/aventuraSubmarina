@@ -1,11 +1,15 @@
 package gal.etse.ense.aventurasubmarina.Modelo;
 
 public class Tesoro{
-    private final int categoria;
+    private int categoria;
     private int valor;
 
     public int getCategoria() {
         return categoria;
+    }
+
+    public void setCategoria(int categoria) {
+        this.categoria=categoria;
     }
 
     public int getValor() {

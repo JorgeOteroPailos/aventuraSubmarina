@@ -405,7 +405,7 @@ public class PartidaController {
         actualizarDados(Estado.partida.dado1(), Estado.partida.dado2());
 
         // ===== FICHAS NO SUBMARINO (casilla 0) =====
-        StackPane cell0 = casillas.get(0);
+        StackPane cell0 = casillas.getFirst();
         HBox fichasSub = (HBox) cell0.getProperties().get("fichasSubmarino");
 
         fichasSub.getChildren().clear();

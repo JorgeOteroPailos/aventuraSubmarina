@@ -31,6 +31,9 @@ public class PartidaControlador {
     public ResponseEntity<Partida> crearPartida(Authentication autenticacion) throws JugadorYaAnadidoException {
 
         Partida partidaCreada = partidaServicio.crearPartida(new Usuario(autenticacion.getName()));
+
+
+
         return new ResponseEntity<>(partidaCreada, HttpStatus.CREATED);
     }
 

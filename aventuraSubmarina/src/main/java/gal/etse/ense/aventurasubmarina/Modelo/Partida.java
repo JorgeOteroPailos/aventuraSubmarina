@@ -1,10 +1,11 @@
 package gal.etse.ense.aventurasubmarina.Modelo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.*;
 
+import gal.etse.ense.aventurasubmarina.Servicios.PartidaServicio;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.annotation.Transient;
+import org.springframework.data.redis.core.RedisHash;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -13,16 +14,20 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
-@Document(collection = "partidas")
+@RedisHash
 public class Partida implements Serializable {
+
+    ArrayList<Jugador> ganadores;
+
+    //private transient final PartidaServicio servicio;
 
     private static final int maximoJugadores=6;
 
-    @Transient
-    private final List<Integer> coloresUsados= new ArrayList<>(maximoJugadores);
+    private List<Integer> coloresUsados= new ArrayList<>(maximoJugadores);
 
-    @Transient
-    protected final List<Jugador> jugadores=new ArrayList<>(maximoJugadores);
+    protected List<Jugador> jugadores=new ArrayList<>(maximoJugadores);
+
+    public void setJugadores(List<Jugador> jugadores){this.jugadores=jugadores;}
 
     public int turno=0;
 
@@ -96,10 +101,11 @@ public class Partida implements Serializable {
         return id;
     }
 
-    public Partida(String id){
+    public Partida(String id, PartidaServicio s){
         tablero=new Tablero();
         actualizarMarcaTemporal();
         this.id=id;
+        //this.servicio=s;
 
         for(int i=0;i<maximoJugadores;i++){
             coloresUsados.add(0);
@@ -109,6 +115,11 @@ public class Partida implements Serializable {
 
     public Partida(){
 
+        //servicio = null;
+    }
+
+    public void setColoresUsados(List<Integer> coloresUsados){
+        this.coloresUsados=coloresUsados;
     }
 
     private void actualizarMarcaTemporal(){
@@ -282,10 +293,6 @@ public class Partida implements Serializable {
 
         lanzarDados();
 
-        if(tablero.oxigeno<1||todosAcabaron){
-            finalizarRonda();
-        }
-
         if(turno!=jugadores.size()-1){
             turno++;
         }else{
@@ -294,7 +301,7 @@ public class Partida implements Serializable {
 
         while(jugadores.get(turno).llegoAlSubmarino&&!jugadores.get(turno).getUsuario().username().equals(j.getUsuario().username())){
             turno++;
-            if(turno==jugadores.size()) turno=0;//mangui ejecuta ahi tio
+            if(turno==jugadores.size()) turno=0;
         }
 
     }
@@ -368,7 +375,7 @@ public class Partida implements Serializable {
         rondaAcabada=true;
         contadorRondas++;
 
-        if(contadorRondas==3){
+        if(contadorRondas==4){
             acabarPartida(); //No hace mucho ahora mismo
         }
     }
@@ -414,7 +421,7 @@ public class Partida implements Serializable {
 
     public void acabarPartida(){
         actualizarMarcaTemporal();
-        ArrayList<Jugador> ganadores=new ArrayList<>();
+        ganadores=new ArrayList<>();
         int dineros=-1;
 
         for(Jugador j: jugadores){
@@ -425,6 +432,9 @@ public class Partida implements Serializable {
                 ganadores.add(j);
             }
         }
+
+        //servicio.almacenarPartida(this.id);
+
 
         System.out.println("Los ganadores son" + ganadores);
 

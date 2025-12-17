@@ -238,7 +238,8 @@ public class PrincipalController {
 
         Stage stage = new Stage();
         stage.setTitle("Partida " + id);
-        Scene scene = new Scene(root, 1200, 800);
+        Scene scene = new Scene(root);
+        stage.setFullScreen(true);
         stage.setMinWidth(1000);
         stage.setMinHeight(700);
         stage.setScene(scene);

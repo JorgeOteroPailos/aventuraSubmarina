@@ -137,7 +137,6 @@ public class AutenticacionControlador {
 
         createdUsuario = usuarios.crearUsuario(usuario);
 
-
         return ResponseEntity.created(MvcUriComponentsBuilder.fromMethodName(UsuariosControlador.class, "getUsuario", usuario.username()).build().toUri())
                 .body(createdUsuario);
     }
