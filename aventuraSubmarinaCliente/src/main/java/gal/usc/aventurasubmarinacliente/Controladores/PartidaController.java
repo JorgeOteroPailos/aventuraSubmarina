@@ -5,8 +5,6 @@ import gal.usc.aventurasubmarinacliente.Estado;
 import gal.usc.aventurasubmarinacliente.modelo.*;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.animation.TranslateTransition;
-import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -61,6 +59,8 @@ public class PartidaController {
 
     @FXML
     private Button btnSalir;
+
+
 
     // Board
     @FXML

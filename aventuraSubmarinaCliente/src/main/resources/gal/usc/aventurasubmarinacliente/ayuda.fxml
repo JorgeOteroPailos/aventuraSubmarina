@@ -10,7 +10,8 @@
             fx:id="root"
             prefWidth="520"
             prefHeight="380"
-            styleClass="root tutorial-popup-root">
+            styleClass="root tutorial-popup-root"
+            stylesheets="@/general.css">
 
     <!-- ===== TOP BAR ===== -->
 
@@ -36,13 +37,12 @@
                    styleClass="info-value tutorial-tip-text"/>
 
             <ImageView fx:id="imgTip"
+                       fitWidth="460"
+                       fitHeight="170"
                        preserveRatio="true"
-                       smooth="true"
-                       cache="true"
                        visible="false"
                        managed="false"
-                       VBox.vgrow="ALWAYS"
-                       styleClass="tutorial-image"/>
+            />
         </VBox>
     </center>
 

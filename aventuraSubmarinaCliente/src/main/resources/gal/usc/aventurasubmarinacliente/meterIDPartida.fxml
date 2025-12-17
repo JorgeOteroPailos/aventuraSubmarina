@@ -13,7 +13,8 @@
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="gal.usc.aventurasubmarinacliente.Controladores.meterIDController"
       fx:id="dialogRoot"
-      styleClass="root">
+      styleClass="root"
+      stylesheets="@/general.css">
 
       <TextField fx:id="txtIdPartida"
                  layoutX="58.0" layoutY="52.0" />

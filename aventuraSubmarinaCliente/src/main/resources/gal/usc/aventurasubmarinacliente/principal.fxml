@@ -7,7 +7,8 @@
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="gal.usc.aventurasubmarinacliente.Controladores.PrincipalController"
             fx:id="root"
-            styleClass="root">
+            styleClass="root"
+            stylesheets="@/general.css">
 
     <!-- ===== MENÚ LATERAL ===== -->
     <left>

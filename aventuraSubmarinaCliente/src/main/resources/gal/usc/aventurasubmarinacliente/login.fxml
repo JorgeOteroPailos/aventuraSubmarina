@@ -11,7 +11,8 @@
 
 <VBox alignment="CENTER" spacing="18.0"
       xmlns:fx="http://javafx.com/fxml"
-      fx:controller="gal.usc.aventurasubmarinacliente.Controladores.LoginController">
+      fx:controller="gal.usc.aventurasubmarinacliente.Controladores.LoginController"
+      stylesheets="@/general.css">
 
     <padding>
         <Insets top="24.0" right="24.0" bottom="24.0" left="24.0"/>
