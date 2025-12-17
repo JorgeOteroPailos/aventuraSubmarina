@@ -36,12 +36,12 @@
                    styleClass="info-value tutorial-tip-text"/>
 
             <ImageView fx:id="imgTip"
-                       fitWidth="460"
-                       fitHeight="170"
                        preserveRatio="true"
                        smooth="true"
+                       cache="true"
                        visible="false"
                        managed="false"
+                       VBox.vgrow="ALWAYS"
                        styleClass="tutorial-image"/>
         </VBox>
     </center>

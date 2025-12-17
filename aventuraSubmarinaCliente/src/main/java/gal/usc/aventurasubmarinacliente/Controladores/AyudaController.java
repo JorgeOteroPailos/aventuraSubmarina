@@ -199,25 +199,25 @@ public class AyudaController {
                 new AyudaController.Tip(
                         "Objetivo del juego",
                         "Deep Sea Adventure es un juego cooperativo-competitivo. Todos los jugadores exploran el fondo marino en busca de tesoros, pero comparten un recurso vital: el oxígeno. El objetivo es volver al submarino con el mayor valor posible en tesoros antes de que se agote.",
-                        "/img/tutorial/objetivo.png"
+                        "/gal/usc/aventurasubmarinacliente/tutorial/objetivo.png"
                 ),
 
                 new AyudaController.Tip(
                         "Movimiento",
                         "En tu turno lanzas los dados y avanzas por el camino submarino. Puedes bajar para explorar zonas más profundas o subir para regresar al submarino. Cuanto más profundo, mejores tesoros… pero más peligro.",
-                        "/img/tutorial/mover.png"
+                        "/gal/usc/aventurasubmarinacliente/tutorial/mover.png"
                 ),
 
                 new AyudaController.Tip(
                         "Tesoros",
                         "Al caer en una casilla con tesoros puedes coger uno. Cada tesoro tiene un valor, pero también pesa: cuantos más lleves, más lento te moverás en turnos posteriores.",
-                        "/img/tutorial/tesoros.png"
+                        "/gal/usc/aventurasubmarinacliente/tutorial/tesoro.png"
                 ),
 
                 new AyudaController.Tip(
                         "Oxígeno compartido",
                         "Cada turno consume oxígeno del contador común. Cuantos más tesoros lleven los jugadores, más oxígeno se gasta. Si el oxígeno llega a cero, todos los jugadores que no hayan regresado al submarino pierden sus tesoros.",
-                        "/img/tutorial/oxigeno.png"
+                        "/gal/usc/aventurasubmarinacliente/tutorial/oxigeno.png"
                 ),
 
                 new AyudaController.Tip(

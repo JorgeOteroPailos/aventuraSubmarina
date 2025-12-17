@@ -5,8 +5,8 @@ import gal.usc.aventurasubmarinacliente.Estado;
 import gal.usc.aventurasubmarinacliente.modelo.*;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.animation.TranslateTransition;
 import javafx.beans.binding.Bindings;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -115,8 +115,6 @@ public class PartidaController {
     @FXML
     private HBox bottomPanel;
 
-    @FXML
-    private Label lblDado;
 
     @FXML
     private ScrollPane scrollBoard;
@@ -183,12 +181,13 @@ public class PartidaController {
     @FXML
     private void onLanzarDado() {
         if(Estado.partida.jugadores().get(Estado.partida.turno()).usuario().username().equals(Estado.usuario.username())){
-            int tirada=Estado.partida.dado1()+Estado.partida.dado2();
-            lblDado.setText("[" + Estado.partida.dado1() + ", " + Estado.partida.dado2() + "] = " + tirada);
             btnDado.setDisable(true);
+            imgDado1.setVisible(true);
+            imgDado2.setVisible(true);
         }
         System.out.println("Lanzar dado");
     }
+
 
     @FXML
     private void onSubir() {
@@ -230,9 +229,6 @@ public class PartidaController {
 
         @FXML
         private void onSiguiente() {
-
-            //TODO Que haya, de alguna manera, feedback
-
             Accion accion=new Accion("","");
 
             if(toggleSubir.isSelected()&&toggleNada.isSelected()){
@@ -267,7 +263,9 @@ public class PartidaController {
 
                     lblError.setText(" ");
 
-                    lblDado.setText(" ");
+
+                    imgDado1.setVisible(false);
+                    imgDado2.setVisible(false);
 
                     Partida p = mapper.readValue(res.body(), Partida.class);
 
@@ -317,13 +315,10 @@ public class PartidaController {
 
                 if (res.statusCode() > 199 && res.statusCode() < 300) {
 
-                    //if(res.statusCode()!=HttpStatus.NOT_MODIFIED){
-                    //No se mirarlo
-                    //}
-
                     Partida p = mapper.readValue(res.body(), Partida.class);
 
                     System.out.println("Se ha iniciado la partida:");
+                    btnIniciarPartida.setVisible(false);
                     System.out.println(p);
 
                     Estado.partida = p;
@@ -349,6 +344,7 @@ public class PartidaController {
         }
     }
 
+    //TODO subir funciona mal, además hay q hacer q el submarino se vea bien y el oxígeno y el css
 
     @FXML
     private void initialize() {
@@ -363,7 +359,7 @@ public class PartidaController {
 
         crearTablero();
         Timeline timeline = new Timeline(
-                new KeyFrame(Duration.seconds(2), event -> {
+                new KeyFrame(Duration.seconds(1), event -> {
                     actualizarDatos();
                 })
         );
@@ -396,15 +392,20 @@ public class PartidaController {
 
         StackPane cell0 = new StackPane(rect0);
         cell0.setId("cell-0");
-        cell0.setLayoutX(0);
-        cell0.setLayoutY(0);
+        cell0.layoutXProperty().bind(
+                boardPane.widthProperty()
+                        .subtract(rect0.widthProperty())
+                        .divide(2)
+        );
+
+        cell0.setLayoutY(10);
 
         Label label0 = new Label("0");
         cell0.getChildren().add(label0);
 
         casillas.add(cell0);
         boardPane.getChildren().add(cell0);
-        boardPane.setPadding(new Insets(10));
+        boardPane.setPadding(new Insets(20));
 
         /* ===== RESTO DE CASILLAS (DESDE LA 1) ===== */
         for (int i = 1; i < TOTAL_CASILLAS; i++) {
@@ -418,19 +419,25 @@ public class PartidaController {
             rect.heightProperty().bind(rect.widthProperty());
 
             StackPane cell = new StackPane(rect);
+            cell.setPadding(new Insets(40, 0, 40, 0));
+            cell.setUserData(rect);
             cell.setId("cell-" + i);
 
             int index = i - 1; // porque la 0 ya existe
             int columnas=10;
 
             cell.layoutXProperty().bind(
-                    rect0.widthProperty().multiply((index % columnas) * 0.1)
+                    rect0.widthProperty().multiply((index % columnas) * 0.15)
+                            .add(85)
             );
 
+            double spacingFactor = 0.1; // 10% de rect0.height para espacio entre filas
+
             cell.layoutYProperty().bind(
-                    rect0.heightProperty()
-                            .add(rect0.heightProperty().multiply(0.1))  // Espacio
-                            .add(rect.heightProperty().multiply(index / columnas))
+                    rect0.heightProperty().add(
+                            (rect.heightProperty().add(rect0.heightProperty().multiply(spacingFactor)))
+                                    .multiply(index / columnas)
+                    )
             );
 
             Label label = new Label(String.valueOf(i));
@@ -444,8 +451,10 @@ public class PartidaController {
     private void actualizarDatos(){
 
         if(!Estado.partida.empezada()||!Estado.partida.jugadores().get(Estado.partida.turno()).usuario().username().equals(Estado.usuario.username())){
-            lblDado.setText(" ");
-            btnDado.setDisable(true);
+            btnDado.setDisable(false);
+            imgDado1.setVisible(false);
+            imgDado2.setVisible(false);
+
             toggleSubir.setDisable(true);
             toggleBajar.setDisable(true);
             toggleCoger.setDisable(true);
@@ -453,7 +462,9 @@ public class PartidaController {
             toggleNada.setDisable(true);
             btnSiguiente.setDisable(true);
         }else{
+
             btnDado.setDisable(false);
+
             toggleSubir.setDisable(false);
             toggleBajar.setDisable(false);
             toggleCoger.setDisable(false);
@@ -462,9 +473,9 @@ public class PartidaController {
             btnSiguiente.setDisable(false);
         }
 
-        btnIniciarPartida.setVisible(Estado.partida.jugadores().getFirst().usuario().username().equals(Estado.usuario.username()));
+        btnIniciarPartida.setVisible(Estado.partida.jugadores().getFirst().usuario().username().equals(Estado.usuario.username()) && !Estado.partida.empezada());
 
-        btnSiguiente.setDisable(lblDado.getText().equals(" ") || (!toggleBajar.isSelected() && !toggleSubir.isSelected()) || (!toggleCoger.isSelected() && !toggleDejar.isSelected() && !toggleNada.isSelected()));
+        btnSiguiente.setDisable(!imgDado1.isVisible() || (!toggleBajar.isSelected() && !toggleSubir.isSelected()) || (!toggleCoger.isSelected() && !toggleDejar.isSelected() && !toggleNada.isSelected()));
 
         try {
 
@@ -530,56 +541,44 @@ public class PartidaController {
 
             if(i!=0){
                 if(Estado.partida.tablero().casillas().get(i).tesoros().isEmpty()){
-                    List<Node> nodosParaMantener = new ArrayList<>();
 
-                    for (Node nodo : casilla.getChildren()) {
-                        // Mantener solo los Labels
-                        if (nodo instanceof Label) {
-                            nodosParaMantener.add(nodo);
-                        }
-                    }
-
-                    casilla.getChildren().setAll(nodosParaMantener);
-
-                    Circle circle = new Circle();
-
-                    circle.radiusProperty().bind(
-                            Bindings.createDoubleBinding(() -> {
-                                // Obtener valores actuales dinámicamente
-                                double anchoTotal = casilla.getWidth();
-                                Insets padding = casilla.getPadding();
-                                double anchoDisponible = anchoTotal - padding.getLeft() - padding.getRight();
-
-                                // Radio = 45% del ancho disponible (ajusta este valor)
-                                return anchoDisponible * 0.45;
-                            }, casilla.widthProperty(), casilla.paddingProperty())  // ← ¡IMPORTANTE!
+                    casilla.getChildren().removeIf(node ->
+                            node instanceof Circle ||
+                                    node instanceof Rectangle ||
+                                    node instanceof Polygon
                     );
 
-                    circle.setFill(Color.web("#FFFFFF"));
+                    Rectangle rectBase = (Rectangle) casilla.getUserData();
+
+                    Circle circle = new Circle();
+                    circle.radiusProperty().bind(
+                            rectBase.widthProperty().divide(2)
+                    );
+
+                    circle.setFill(Color.WHITE);
                     circle.setStroke(Color.BLACK);
-                    circle.setStrokeWidth(1);
 
                     casilla.getChildren().addFirst(circle);
                 } else if(Estado.partida.tablero().casillas().get(i).tesoros().size()>1){
-                    List<Node> nodosAEliminar = new ArrayList<>();
-                    for (Node nodo : casilla.getChildren()) {
-                        if (nodo instanceof Rectangle ||
-                                nodo instanceof Circle ||
-                                nodo instanceof Polygon ||
-                                "ficha".equals(nodo.getUserData())) {
-                            nodosAEliminar.add(nodo);
-                        }
-                    }
-                    casilla.getChildren().removeAll(nodosAEliminar);
+                    Rectangle rectBase = (Rectangle) casilla.getUserData();
 
-                    // 2. Crear nuevo Circle
-                    Circle circle = new Circle(CASILLA_SIZE/2);
-                    circle.setFill(Color.web("#555555"));
+                    Circle circle = new Circle();
+                    circle.radiusProperty().bind(
+                            rectBase.widthProperty().divide(2).multiply(0.9)
+                    );
+
+                    circle.setFill(Color.WHITE);
                     circle.setStroke(Color.BLACK);
-                    circle.setStrokeWidth(1);
 
-                    // 3. Añadir el Circle al StackPane
-                    casilla.getChildren().add(circle);
+                    circle.translateXProperty().bind(
+                            rectBase.widthProperty().multiply(0.05) // 5% a la derecha
+                    );
+
+                    circle.translateYProperty().bind(
+                            rectBase.heightProperty().multiply(-0.05) // 5% hacia arriba
+                    );
+
+                    casilla.getChildren().addFirst(circle);
                 }else{
                     Node primerHijo;
                     switch(Estado.partida.tablero().casillas().get(i).tesoros().getFirst().categoria()){
@@ -597,25 +596,45 @@ public class PartidaController {
                             }
                             break;
                         case 4:
-                            casilla.getChildren().removeIf(node -> node instanceof Rectangle);
-                            // Forma hexagonal
+                            Rectangle rectBase = (Rectangle) casilla.getUserData();
+                            rectBase.setVisible(false);
+
                             Polygon hexagon = new Polygon();
-                            double size = CASILLA_SIZE / 1.5;
-
-                            // Puntos del hexágono
-                            for (int j = 0; j < 6; j++) {
-                                double angle = 2 * Math.PI / 6 * j;
-                                hexagon.getPoints().addAll(
-                                        size + size * Math.cos(angle),      // x
-                                        size + size * Math.sin(angle)       // y
-                                );
-                            }
-
                             hexagon.setFill(Color.web("16596B"));
                             hexagon.setStroke(Color.DARKGOLDENROD);
                             hexagon.setStrokeWidth(1);
 
-                            casilla.getChildren().add(hexagon);
+                            rectBase.widthProperty().addListener((obs, oldW, newW) -> {
+
+                                double size = newW.doubleValue() * 0.6;
+                                double center = newW.doubleValue() / 2;
+
+                                hexagon.getPoints().clear();
+
+                                for (int j = 0; j < 6; j++) {
+                                    double angle = Math.PI / 3 * j;
+                                    hexagon.getPoints().addAll(
+                                            center + size * Math.cos(angle),
+                                            center + size * Math.sin(angle)
+                                    );
+                                }
+                            });
+
+                            double w = rectBase.getWidth();
+                            if (w > 0) {
+                                double size = w * 0.6;
+                                double center = w / 2;
+                                for (int j = 0; j < 6; j++) {
+                                    double angle = Math.PI / 3 * j;
+                                    hexagon.getPoints().addAll(
+                                            center + size * Math.cos(angle),
+                                            center + size * Math.sin(angle)
+                                    );
+                                }
+                            }
+
+                            casilla.getChildren().addFirst(hexagon);
+
                             break;
                         default:
                             break;

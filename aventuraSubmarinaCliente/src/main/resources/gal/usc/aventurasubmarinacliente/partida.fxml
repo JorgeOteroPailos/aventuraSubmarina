@@ -157,10 +157,6 @@
                                preserveRatio="true"/>
                 </HBox>
 
-                <Label fx:id="lblDado"
-                       text="Turno:"
-                       styleClass="info-label"/>
-
                 <Button fx:id="btnDado"
                         text="🎲"
                         onAction="#onLanzarDado"
