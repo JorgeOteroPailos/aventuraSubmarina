@@ -3,7 +3,10 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 
+<?import javafx.scene.image.Image?>
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="gal.usc.aventurasubmarinacliente.Controladores.PerfilController"
             fx:id="root"
@@ -29,17 +32,46 @@
 
     <!-- ===== CONTENIDO CENTRAL ===== -->
     <center>
-        <VBox alignment="CENTER"
-              spacing="30"
+        <VBox fx:id="contentBox"
+              alignment="CENTER"
+              spacing="20"
               styleClass="content">
 
+            <!-- Título principal -->
             <Label text="Perfil"
-                   fx:id="lblTitulo"
-                   styleClass="title"/>
+                   style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: white;"/>
 
+            <!-- Avatar con borde suave -->
+            <StackPane fx:id="avatarContainer" prefWidth="150" prefHeight="150">
+                    <ImageView fx:id="imgTip"
+                               fitWidth="460"
+                               fitHeight="170"
+                               preserveRatio="true"
+                               visible="false"
+                               managed="false"
+                    >
+                    <image>
+                        <Image url="@imagenes/submarino.png"/>
+                    </image>
+                </ImageView>
+            </StackPane>
+
+
+            <!-- Nombre de usuario -->
             <Label fx:id="lblNombreUsuario"
-                   styleClass="subtitle"/>
+                   style="-fx-font-size: 18px; -fx-text-fill: #CFFAFE; -fx-font-weight: bold;"/>
 
+            <!-- Botón principal: Historial de partidas -->
+            <Button text="📊 Ver historial de partidas"
+                    fx:id="btnHistorial"
+                    onAction="#onVerHistorial"
+                    styleClass="primary-button">
+                <padding>
+                    <Insets top="10" bottom="10"/>
+                </padding>
+            </Button>
+
+            <!-- Botón secundario: Borrar perfil -->
             <Button text="Borrar perfil"
                     fx:id="btnBorrarPerfil"
                     onAction="#onBorrarPerfil"

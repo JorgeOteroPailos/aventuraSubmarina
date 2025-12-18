@@ -285,7 +285,7 @@ public class PartidaController {
             { super.bind(gridBoard.widthProperty()); }
             @Override protected double computeValue() {
                 double w = gridBoard.getWidth();
-                if (w <= 0) return 52.0;
+                if (w <= 0) return 70;
                 double gap = gridBoard.getHgap();
                 double size = (w - gap * (COLUMNS - 1)) / COLUMNS;
                 return Math.max(34.0, Math.min(80.0, size));
@@ -549,8 +549,8 @@ public class PartidaController {
 
         ImageView ficha = new ImageView(img);
         ficha.setUserData("ficha");
-        ficha.setFitWidth(30);
-        ficha.setFitHeight(30);
+        ficha.setFitWidth(40);
+        ficha.setFitHeight(40);
         ficha.setPreserveRatio(true);
 
         ColorAdjust ajuste = new ColorAdjust();
@@ -593,8 +593,8 @@ public class PartidaController {
                 ))
         );
 
-        submarino.fitWidthProperty().bind(cell0Container.widthProperty());
-        submarino.fitHeightProperty().bind(cell0Container.heightProperty());
+        submarino.fitWidthProperty().bind(cell0Container.widthProperty().multiply(0.8));
+        //submarino.fitHeightProperty().bind(cell0Container.heightProperty().multiply(1.3));
         submarino.setPreserveRatio(true);
         submarino.setSmooth(true);
 
