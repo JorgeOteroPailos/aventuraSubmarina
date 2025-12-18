@@ -32,7 +32,10 @@ public class PartidaControlador {
 
         Partida partidaCreada = partidaServicio.crearPartida(new Usuario(autenticacion.getName()));
 
+        String id =partidaCreada.getId();
 
+        partidaCreada.addLink("self", "/partidas/" + id, "GET");
+        partidaCreada.addLink("start", "/partidas/" + id, "PATCH");
 
         return new ResponseEntity<>(partidaCreada, HttpStatus.CREATED);
     }
@@ -41,6 +44,10 @@ public class PartidaControlador {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Partida> unirseAPartida(@PathVariable String id, Authentication autenticacion) throws PartidaNoEncontradaException, JugadorYaAnadidoException {
         Partida p = partidaServicio.anadirJugador(id, new Usuario(autenticacion.getName()));
+
+        p.addLink("self", "/partidas/" + id, "GET");
+        p.addLink("leave", "/partidas/" + id + "/jugadores/" + autenticacion.getName(), "DELETE");
+
         return new ResponseEntity<>(p, HttpStatus.OK);
     }
 
@@ -48,7 +55,8 @@ public class PartidaControlador {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Partida> getEstadoPartida(
             @PathVariable String id,
-            @RequestParam(required = false) int selloTemporal)
+            @RequestParam(required = false) int selloTemporal,
+            Authentication autenticacion)
             throws PartidaNoEncontradaException {
 
         System.out.println("Entrando a getEstadoPartida");
@@ -57,6 +65,13 @@ public class PartidaControlador {
         if (p.getMarcaTemporal()==selloTemporal) {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
         }
+
+        p.addLink("self", "/partidas/" + id, "GET");
+        if(!p.isEmpezada()){
+            p.addLink("start", "/partidas/" + id, "PATCH");
+        }
+        p.addLink("action", "/partidas/" + id, "PUT");
+        p.addLink("leave", "/partidas/" + id + "/jugadores/" + new Usuario(autenticacion.getName()), "DELETE");
 
         return ResponseEntity.ok(p);
     }
@@ -69,11 +84,8 @@ public class PartidaControlador {
 
         Partida p = partidaServicio.iniciarPartida(id, new Usuario(autenticacion.getName()));
 
-        id=p.getId();
-
         p.addLink("self", "/partidas/" + id, "GET");
-        p.addLink("join", "/partidas/" + id + "/jugadores", "PATCH");
-        p.addLink("start", "/partidas/" + id, "PATCH");
+        p.addLink("action", "/partidas/" + id, "PUT");
 
         return new ResponseEntity<>(p, HttpStatus.OK);
     }

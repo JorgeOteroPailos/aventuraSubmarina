@@ -10,6 +10,4 @@ import java.util.Optional;
 @NullMarked
 @Repository
 public interface PartidasActivasRepositorio extends CrudRepository<Partida, String> {
-
-    Optional<Partida> findById(String id);
 }

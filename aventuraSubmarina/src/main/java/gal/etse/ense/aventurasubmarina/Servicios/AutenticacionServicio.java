@@ -106,7 +106,7 @@ public class AutenticacionServicio {
         DebugPrint.show("[AuthService::login-password] JWT xerado");
 
         System.out.println(roles);
-        return new UsuarioDTO(usuario.username(), token, new HashSet<>(roles));
+        return new UsuarioDTO(usuario.username(), token, new HashSet<>(roles), new HashMap<>());
     }
 
     public UsuarioDTO login(String refreshToken) throws TokenRefrescoInvalidoException {
@@ -138,7 +138,8 @@ public class AutenticacionServicio {
         return new UsuarioDTO(
                 usuario.getNombre(),
                 jwt,
-                new HashSet<>(roles)
+                new HashSet<>(roles),
+                new HashMap<>()
         );
     }
 

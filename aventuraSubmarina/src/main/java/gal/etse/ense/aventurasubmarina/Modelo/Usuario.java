@@ -1,12 +1,15 @@
 package gal.etse.ense.aventurasubmarina.Modelo;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.jspecify.annotations.NonNull;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+
+
+import org.springframework.data.annotation.Transient;
+
+import java.util.*;
 
 @Document(collection = "usuarios")
 public class Usuario{
@@ -16,6 +19,21 @@ public class Usuario{
     private String contrasena;
 
     private Set<Rol> roles;
+
+    // ===== HATEOAS =====
+    @Transient
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private final Map<String, LinkDto> links = new HashMap<>();
+
+    public void addLink(String rel, String href, String method) {
+        links.put(rel, new LinkDto(href, method));
+    }
+
+    public Map<String, Usuario.LinkDto> getLinks() {
+        return links;
+    }
+
+    public record LinkDto(String href, String method) {}
 
     public Usuario(String nombre, String contrasena, @NonNull Set<Rol> roles){
         this.setNombre(nombre);

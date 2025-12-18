@@ -58,8 +58,6 @@ public class AutenticacionControlador {
         DebugPrint.show("[AuthController::login] ENTRADA");
         DebugPrint.show("[AuthController::login] Usuario = " + usuario.username());
 
-
-
         UsuarioDTO loggedUsuario = autenticacion.login(usuario);
         DebugPrint.show("[AuthController::login] JWT xerado");
 
@@ -105,7 +103,7 @@ public class AutenticacionControlador {
             return ResponseEntity.status(403).build();
         }
 
-        // OJO: este "usuario.password()" aquí es el JWT (sí, el nombre del campo es raro)
+        // OJO: este "usuario.password()" aquí es el JWT
         UsuarioDTO usuario = autenticacion.login(refreshToken);
 
         return ResponseEntity.noContent()
@@ -136,6 +134,14 @@ public class AutenticacionControlador {
         Usuario createdUsuario;
 
         createdUsuario = usuarios.crearUsuario(usuario);
+
+        createdUsuario.addLink("self",
+                "/usuarios/" + createdUsuario.getNombre(),
+                "GET");
+
+        createdUsuario.addLink("login",
+                "/autenticacion/login",
+                "POST");
 
         return ResponseEntity.created(MvcUriComponentsBuilder.fromMethodName(UsuariosControlador.class, "getUsuario", usuario.username()).build().toUri())
                 .body(createdUsuario);

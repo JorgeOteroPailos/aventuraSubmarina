@@ -2,6 +2,7 @@ package gal.etse.ense.aventurasubmarina.Controlador;
 
 
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.SuplantacionException;
+import gal.etse.ense.aventurasubmarina.Modelo.PartidasAcabadas;
 import gal.etse.ense.aventurasubmarina.Modelo.UsuarioDTO;
 import gal.etse.ense.aventurasubmarina.Servicios.AutenticacionServicio;
 import gal.etse.ense.aventurasubmarina.Servicios.UsuarioServicio;
@@ -12,8 +13,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Objects;
 
 @RestController
@@ -54,8 +57,18 @@ public class UsuariosControlador {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UsuarioDTO> getUsuario(@PathVariable String id){
+    public ResponseEntity<UsuarioDTO> getUsuario(@PathVariable String id, Authentication autenticacion){
+        if(!id.equals(autenticacion.getName())){
+            throw new SuplantacionException(id, autenticacion.getName());
+        }
+
         UsuarioDTO u=UsuarioDTO.from(usuarioServicio.getUsuario(id));
+
+        u.addLink("self", "/usuarios/" + id, "GET");
+        u.addLink("partidas-acabadas", "/usuarios/" + id + "/partidasAcabadas", "GET");
+        u.addLink("create-partida", "/partidas", "POST");
+        u.addLink("delete", "/usuarios/" + id, "DELETE");
+
         return new ResponseEntity<>(u, HttpStatus.OK);
     }
 
@@ -65,6 +78,22 @@ public class UsuariosControlador {
         Page<UsuarioDTO> lista = usuarioServicio.getUsuariosTodos(pageable);
         return new ResponseEntity<>(lista, HttpStatus.OK);
     }
+
+    @GetMapping("/{id}/partidasAcabadas")
+    public ResponseEntity<List<PartidasAcabadas>> getPartidasAcabadas(
+            @PathVariable String id,
+            Authentication authentication
+    ) {
+
+        System.out.println("ENTRÉ EN GET PARTIDAS ACABADAS");
+        if (!id.equals(authentication.getName())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        List<PartidasAcabadas> listaPartidas = usuarioServicio.getPartidasAcabadas(id);
+        return ResponseEntity.ok(listaPartidas);
+    }
+
 
 
 }

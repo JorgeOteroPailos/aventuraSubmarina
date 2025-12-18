@@ -1,11 +1,11 @@
 package gal.etse.ense.aventurasubmarina.Servicios;
 
+import gal.etse.ense.aventurasubmarina.Modelo.*;
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.UsuarioExistenteException;
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.UsuarioNoEncontradoException;
-import gal.etse.ense.aventurasubmarina.Modelo.Rol;
-import gal.etse.ense.aventurasubmarina.Modelo.Usuario;
-import gal.etse.ense.aventurasubmarina.Modelo.UsuarioDTO;
+import gal.etse.ense.aventurasubmarina.Repositorio.PartidaRepositorio;
 import gal.etse.ense.aventurasubmarina.Repositorio.UsuarioRepositorio;
+import gal.etse.ense.aventurasubmarina.Repositorio.Usuario_PartidaRepositorio;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +15,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -23,13 +25,18 @@ import java.util.Set;
 public class UsuarioServicio implements UserDetailsService {
 
     private final UsuarioRepositorio usuarioRepositorio;
-
+    private final Usuario_PartidaRepositorio usuarioPartidaRepositorio;
+    private final PartidaRepositorio partidaRepositorio;
 
     private final PasswordEncoder passwordEncoder;
 
     public UsuarioServicio(UsuarioRepositorio usuarioRepositorio,
+                           Usuario_PartidaRepositorio usuarioPartidaRepositorio,
+                           PartidaRepositorio partidaRepositorio,
                            PasswordEncoder passwordEncoder) {
         this.usuarioRepositorio = usuarioRepositorio;
+        this.usuarioPartidaRepositorio = usuarioPartidaRepositorio;
+        this.partidaRepositorio = partidaRepositorio;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -73,6 +80,22 @@ public class UsuarioServicio implements UserDetailsService {
                 .map(UsuarioDTO::from);
     }
 
+    public List<PartidasAcabadas> getPartidasAcabadas(String id){
+
+        ArrayList<PartidasAcabadas> partidas=new ArrayList<>();
+        List<Usuario_Partida> lista=usuarioPartidaRepositorio.findAllByIdUsuario(id);
+        System.out.println(lista + "Con id: "+id);
+        System.out.println(lista.size());
+
+        for(Usuario_Partida up: lista){
+            Optional<PartidasAcabadas> partida=partidaRepositorio.findById(up.idPartida+up.tiempoID);
+            System.out.println("Partida: "+partida + "con id: " + up.idPartida+up.tiempoID);
+            partida.ifPresent(partidas::add);
+        }
+        System.out.println(partidas);
+        return partidas;
+    }
+
     @Override
     public UserDetails loadUserByUsername(String nombre) throws UsernameNotFoundException {
 
@@ -98,6 +121,8 @@ public class UsuarioServicio implements UserDetailsService {
                 .roles("USER", "ADMIN")
                 .build();
     }
+
+
 
 
 }

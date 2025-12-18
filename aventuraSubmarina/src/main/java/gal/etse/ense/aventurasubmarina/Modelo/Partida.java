@@ -1,10 +1,8 @@
 package gal.etse.ense.aventurasubmarina.Modelo;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.*;
 
-import gal.etse.ense.aventurasubmarina.Servicios.PartidaServicio;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.redis.core.RedisHash;
@@ -17,6 +15,10 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @RedisHash("partidas")
 public class Partida implements Serializable {
+
+    public ArrayList<Jugador> getGanadores() {
+        return ganadores;
+    }
 
     ArrayList<Jugador> ganadores;
 

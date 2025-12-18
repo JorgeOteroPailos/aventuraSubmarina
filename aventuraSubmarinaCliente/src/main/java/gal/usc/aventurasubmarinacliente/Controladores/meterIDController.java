@@ -1,11 +1,13 @@
 package gal.usc.aventurasubmarinacliente.Controladores;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class meterIDController {
 
     @FXML private Pane dialogRoot;

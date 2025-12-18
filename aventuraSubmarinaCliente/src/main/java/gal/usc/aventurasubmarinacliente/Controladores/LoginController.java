@@ -1,5 +1,6 @@
 package gal.usc.aventurasubmarinacliente.Controladores;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gal.usc.aventurasubmarinacliente.Estado;
@@ -23,6 +24,7 @@ import java.util.Optional;
 import gal.usc.aventurasubmarinacliente.modelo.Usuario;
 import javafx.stage.Stage;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class LoginController {
 
     @FXML private TextField usernameField;

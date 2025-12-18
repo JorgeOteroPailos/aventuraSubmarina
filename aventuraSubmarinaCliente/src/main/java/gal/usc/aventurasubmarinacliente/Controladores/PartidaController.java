@@ -1,5 +1,6 @@
 package gal.usc.aventurasubmarinacliente.Controladores;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gal.usc.aventurasubmarinacliente.Estado;
 import gal.usc.aventurasubmarinacliente.modelo.*;
@@ -377,6 +378,9 @@ public class PartidaController {
 
                 if(Estado.partida.partidaAcabada()){
 
+                    if(timeline!=null){
+                        timeline.stop();
+                    }
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("¡La partida ha finalizado!");
                     alert.setHeaderText(null); // o un texto corto
@@ -387,7 +391,7 @@ public class PartidaController {
                     PrincipalController.abrirVentanaPrincipal();
 
                     cerrar();
-
+                    return;
                 }
             }
 
