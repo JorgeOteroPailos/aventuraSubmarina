@@ -258,7 +258,7 @@ public class PartidaController {
         crearTablero();
 
         timeline = new Timeline(
-                new KeyFrame(Duration.seconds(2), event -> actualizarDatos())
+                new KeyFrame(Duration.seconds(1), event -> actualizarDatos())
         );
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
@@ -374,6 +374,21 @@ public class PartidaController {
 
                 for (Jugador j : Estado.partida.jugadores())
                     if (j.usuario().username().equals(Estado.usuario.username())) jugador = j;
+
+                if(Estado.partida.partidaAcabada()){
+
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("¡La partida ha finalizado!");
+                    alert.setHeaderText(null); // o un texto corto
+                    alert.setContentText("¡La partida ha finalizado! El ganador es"+Estado.partida.ganadores().getFirst().usuario().username());
+
+                    alert.showAndWait();
+
+                    PrincipalController.abrirVentanaPrincipal();
+
+                    cerrar();
+
+                }
             }
 
             //System.out.println(Estado.partida.tablero().oxigeno());

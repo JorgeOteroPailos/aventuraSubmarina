@@ -1,5 +1,6 @@
 package gal.usc.aventurasubmarinacliente.modelo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public record Partida(
@@ -27,6 +28,8 @@ public record Partida(
         Tablero tablero,
         List<Jugador> jugadores,
         Jugador jugadorInicial,
+
+        ArrayList<Jugador> ganadores,
 
         // Colores
         List<Integer> coloresUsados

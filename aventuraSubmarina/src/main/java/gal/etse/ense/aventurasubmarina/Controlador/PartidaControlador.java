@@ -68,6 +68,13 @@ public class PartidaControlador {
         System.out.println("Entrando a iniciarPartida");
 
         Partida p = partidaServicio.iniciarPartida(id, new Usuario(autenticacion.getName()));
+
+        id=p.getId();
+
+        p.addLink("self", "/partidas/" + id, "GET");
+        p.addLink("join", "/partidas/" + id + "/jugadores", "PATCH");
+        p.addLink("start", "/partidas/" + id, "PATCH");
+
         return new ResponseEntity<>(p, HttpStatus.OK);
     }
 

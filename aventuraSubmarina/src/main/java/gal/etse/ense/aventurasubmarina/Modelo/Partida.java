@@ -1,25 +1,24 @@
 package gal.etse.ense.aventurasubmarina.Modelo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.*;
 
 import gal.etse.ense.aventurasubmarina.Servicios.PartidaServicio;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.TimeToLive;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-@RedisHash
+@RedisHash("partidas")
 public class Partida implements Serializable {
 
     ArrayList<Jugador> ganadores;
-
-    //private transient final PartidaServicio servicio;
 
     private static final int maximoJugadores=6;
 
@@ -91,6 +90,9 @@ public class Partida implements Serializable {
 
     private Jugador jugadorInicial;
 
+    @TimeToLive
+    private Long ttl;
+
     @Id
     private String id;
 
@@ -101,11 +103,25 @@ public class Partida implements Serializable {
         return id;
     }
 
-    public Partida(String id, PartidaServicio s){
+    @Transient
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private final Map<String, LinkDto> links = new HashMap<>();
+
+    public record LinkDto(String href, String method) {}
+
+    public void addLink(String rel, String href, String method) {
+        links.put(rel, new LinkDto(href, method));
+    }
+
+    public Map<String, LinkDto> getLinks() {
+        return links;
+    }
+
+    public Partida(String id){
+        this.ttl = 24 * 60 * 60L;
         tablero=new Tablero();
         actualizarMarcaTemporal();
         this.id=id;
-        //this.servicio=s;
 
         for(int i=0;i<maximoJugadores;i++){
             coloresUsados.add(0);

@@ -1,15 +1,16 @@
 package gal.etse.ense.aventurasubmarina.Servicios;
 
+import gal.etse.ense.aventurasubmarina.Modelo.*;
 import gal.etse.ense.aventurasubmarina.Modelo.Excepciones.*;
-import gal.etse.ense.aventurasubmarina.Modelo.Partida;
-import gal.etse.ense.aventurasubmarina.Modelo.PartidasAcabadas;
-import gal.etse.ense.aventurasubmarina.Modelo.Usuario;
 import gal.etse.ense.aventurasubmarina.Repositorio.PartidaRepositorio;
 import gal.etse.ense.aventurasubmarina.Repositorio.PartidasActivasRepositorio;
+import gal.etse.ense.aventurasubmarina.Repositorio.Usuario_PartidaRepositorio;
 import gal.etse.ense.aventurasubmarina.Utils.DebugPrint;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -31,17 +32,20 @@ public class PartidaServicio {
 
     private final PartidasActivasRepositorio partidasActivasRepo;
 
+    private final Usuario_PartidaRepositorio usuarioPartidaRepo;
 
-    public PartidaServicio(PartidasActivasRepositorio partidasActivasRepo, PartidaRepositorio partidasAcabadasRepo) {
+
+    public PartidaServicio(PartidasActivasRepositorio partidasActivasRepo, PartidaRepositorio partidasAcabadasRepo, Usuario_PartidaRepositorio usuarioPartidaRepo) {
         this.partidasActivasRepo=partidasActivasRepo;
         this.partidasAcabadasRepo=partidasAcabadasRepo;
+        this.usuarioPartidaRepo=usuarioPartidaRepo;
     }
 
     public Partida crearPartida(Usuario dueno) throws JugadorYaAnadidoException{
 
         DebugPrint.show("Entrando a crear Partida en el servicio");
 
-        Partida p =new Partida(crearIdPartida(),this);
+        Partida p =new Partida(crearIdPartida());
 
         p.anadirJugador(dueno);
 
@@ -50,10 +54,6 @@ public class PartidaServicio {
         partidasActivasRepo.save(p);
 
         DebugPrint.show("Partida sacada del redis: " + partidasActivasRepo.findById(p.getId()));
-
-
-
-
 
         return p;
     }
@@ -95,9 +95,33 @@ public class PartidaServicio {
 
     public void almacenarPartida(String idPartida) {
 
-        Partida p=partidasActivasRepo.findById(idPartida).get();
-        PartidasAcabadas pa= PartidasAcabadas.from(p);
+        Partida p = partidasActivasRepo.findById(idPartida)
+                .orElseThrow(() -> new IllegalStateException("La partida no existe: " + idPartida));
+
+
+
+        Instant now = Instant.now();
+        int tiempo=now.getNano();
+        PartidasAcabadas pa = PartidasAcabadas.from(p, tiempo);
         partidasAcabadasRepo.save(pa);
+
+        for(Jugador j: p.getJugadores()){
+            Usuario_Partida up=Usuario_Partida.from(j,p, tiempo);
+            usuarioPartidaRepo.save(up);
+        }
+
+        borrarEn5Min(idPartida);
+    }
+
+    @Async
+    public void borrarEn5Min(String idPartida) {
+        try{
+            Thread.sleep(15_000);
+            partidasActivasRepo.deleteById(idPartida);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
     }
 
     public Partida anadirJugador(String idPartida, Usuario u) throws PartidaNoEncontradaException, JugadorYaAnadidoException {
@@ -114,6 +138,10 @@ public class PartidaServicio {
         Partida p=getPartida(id);
         p.accion(accion,accion2,jugador);
         partidasActivasRepo.save(p);
+
+        if(p.isPartidaAcabada()){
+            almacenarPartida(p.getId());
+        }
         return p;
     }
 
