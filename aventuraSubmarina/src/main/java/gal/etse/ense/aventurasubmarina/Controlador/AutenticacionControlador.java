@@ -117,7 +117,11 @@ public class AutenticacionControlador {
     public ResponseEntity<Void> logout(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String token) {
         UsuarioDTO usuario = autenticacion.parseJWT(token.replaceFirst("^Bearer ", ""));
         autenticacion.invalidateTokens(usuario.username());
-        ResponseCookie cookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE_NAME, null).build();
+        ResponseCookie cookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE_NAME, "")
+                .path("/autenticacion/refresh")
+                .maxAge(0)
+                .build();
+
 
         return ResponseEntity.noContent()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
@@ -135,15 +139,28 @@ public class AutenticacionControlador {
 
         createdUsuario = usuarios.crearUsuario(usuario);
 
-        createdUsuario.addLink("self",
-                "/usuarios/" + createdUsuario.getNombre(),
-                "GET");
+        HttpHeaders headers = new HttpHeaders();
 
-        createdUsuario.addLink("login",
-                "/autenticacion/login",
-                "POST");
+        headers.add(HttpHeaders.LINK,
+                "</usuarios/" + createdUsuario.getNombre() + ">; rel=\"self\"");
 
-        return ResponseEntity.created(MvcUriComponentsBuilder.fromMethodName(UsuariosControlador.class, "getUsuario", usuario.username()).build().toUri())
+        headers.add(HttpHeaders.LINK,
+                "</autenticacion/login>; rel=\"login\"");
+
+
+        return ResponseEntity
+                .created(
+                        MvcUriComponentsBuilder
+                                .fromMethodName(
+                                        UsuariosControlador.class,
+                                        "getUsuario",
+                                        usuario.username()
+                                )
+                                .build()
+                                .toUri()
+                )
+                .headers(headers)
                 .body(createdUsuario);
+
     }
 }

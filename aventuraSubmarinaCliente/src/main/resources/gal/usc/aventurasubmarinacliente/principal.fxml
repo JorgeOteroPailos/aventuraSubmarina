@@ -80,7 +80,7 @@
                 <Button text="Crear"
                         fx:id="btnCrear"
                         onAction="#onCrear"
-                        styleClass="secondary-button"/>
+                        styleClass="primary-button"/>
 
             </HBox>
         </VBox>

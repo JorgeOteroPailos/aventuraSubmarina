@@ -6,6 +6,7 @@ import gal.etse.ense.aventurasubmarina.Modelo.Partida;
 import gal.etse.ense.aventurasubmarina.Modelo.Usuario;
 import gal.etse.ense.aventurasubmarina.Servicios.PartidaServicio;
 import org.jspecify.annotations.NullMarked;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,10 +35,12 @@ public class PartidaControlador {
 
         String id =partidaCreada.getId();
 
-        partidaCreada.addLink("self", "/partidas/" + id, "GET");
-        partidaCreada.addLink("start", "/partidas/" + id, "PATCH");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.LINK, "</partidas/" + id + ">; rel=\"self\"");
+        headers.add(HttpHeaders.LINK, "</partidas/" + id + ">; rel=\"start\"");
 
-        return new ResponseEntity<>(partidaCreada, HttpStatus.CREATED);
+        return new ResponseEntity<>(partidaCreada, headers, HttpStatus.CREATED);
+
     }
 
     @PatchMapping("/{id}/jugadores")
@@ -45,17 +48,20 @@ public class PartidaControlador {
     public ResponseEntity<Partida> unirseAPartida(@PathVariable String id, Authentication autenticacion) throws PartidaNoEncontradaException, JugadorYaAnadidoException {
         Partida p = partidaServicio.anadirJugador(id, new Usuario(autenticacion.getName()));
 
-        p.addLink("self", "/partidas/" + id, "GET");
-        p.addLink("leave", "/partidas/" + id + "/jugadores/" + autenticacion.getName(), "DELETE");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.LINK, "</partidas/" + id + ">; rel=\"self\"");
+        headers.add(HttpHeaders.LINK,
+                "</partidas/" + id + "/jugadores/" + autenticacion.getName() + ">; rel=\"leave\"");
 
-        return new ResponseEntity<>(p, HttpStatus.OK);
+        return new ResponseEntity<>(p, headers, HttpStatus.OK);
+
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Partida> getEstadoPartida(
             @PathVariable String id,
-            @RequestParam(required = false) int selloTemporal,
+             int selloTemporal,
             Authentication autenticacion)
             throws PartidaNoEncontradaException {
 
@@ -66,14 +72,20 @@ public class PartidaControlador {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
         }
 
-        p.addLink("self", "/partidas/" + id, "GET");
-        if(!p.isEmpezada()){
-            p.addLink("start", "/partidas/" + id, "PATCH");
-        }
-        p.addLink("action", "/partidas/" + id, "PUT");
-        p.addLink("leave", "/partidas/" + id + "/jugadores/" + new Usuario(autenticacion.getName()), "DELETE");
+        HttpHeaders headers = new HttpHeaders();
 
-        return ResponseEntity.ok(p);
+        headers.add(HttpHeaders.LINK, "</partidas/" + id + ">; rel=\"self\"");
+
+        if (!p.isEmpezada()) {
+            headers.add(HttpHeaders.LINK, "</partidas/" + id + ">; rel=\"start\"");
+        }
+
+        headers.add(HttpHeaders.LINK, "</partidas/" + id + ">; rel=\"action\"");
+        headers.add(HttpHeaders.LINK,
+                "</partidas/" + id + "/jugadores/" + autenticacion.getName() + ">; rel=\"leave\"");
+
+        return new ResponseEntity<>(p, headers, HttpStatus.OK);
+
     }
 
     @PatchMapping("/{id}")
@@ -84,10 +96,12 @@ public class PartidaControlador {
 
         Partida p = partidaServicio.iniciarPartida(id, new Usuario(autenticacion.getName()));
 
-        p.addLink("self", "/partidas/" + id, "GET");
-        p.addLink("action", "/partidas/" + id, "PUT");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.LINK, "</partidas/" + id + ">; rel=\"self\"");
+        headers.add(HttpHeaders.LINK, "</partidas/" + id + ">; rel=\"action\"");
 
-        return new ResponseEntity<>(p, HttpStatus.OK);
+        return new ResponseEntity<>(p, headers, HttpStatus.OK);
+
     }
 
     @DeleteMapping("/{idPartida}/jugadores/{idJugador}")

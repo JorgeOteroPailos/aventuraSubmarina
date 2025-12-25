@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonView;
 import java.util.Set;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public record Usuario (
         @JsonView(Views.Public.class)
         String username,

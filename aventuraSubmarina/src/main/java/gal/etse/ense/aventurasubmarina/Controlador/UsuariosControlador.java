@@ -64,12 +64,13 @@ public class UsuariosControlador {
 
         UsuarioDTO u=UsuarioDTO.from(usuarioServicio.getUsuario(id));
 
-        u.addLink("self", "/usuarios/" + id, "GET");
-        u.addLink("partidas-acabadas", "/usuarios/" + id + "/partidasAcabadas", "GET");
-        u.addLink("create-partida", "/partidas", "POST");
-        u.addLink("delete", "/usuarios/" + id, "DELETE");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.LINK, "</usuarios/" + id + ">; rel=\"self\"");
+        headers.add(HttpHeaders.LINK, "</usuarios/" + id + "/partidasAcabadas>; rel=\"partidas-acabadas\"");
+        headers.add(HttpHeaders.LINK, "</partidas>; rel=\"create-partida\"");
+        headers.add(HttpHeaders.LINK, "</usuarios/" + id + ">; rel=\"delete\"; method=\"DELETE\"");
 
-        return new ResponseEntity<>(u, HttpStatus.OK);
+        return new ResponseEntity<>(u, headers, HttpStatus.OK);
     }
 
     @GetMapping

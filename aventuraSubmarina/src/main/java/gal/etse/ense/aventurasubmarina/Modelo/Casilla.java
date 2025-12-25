@@ -1,7 +1,5 @@
 package gal.etse.ense.aventurasubmarina.Modelo;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.util.ArrayList;
 import java.util.List;
 

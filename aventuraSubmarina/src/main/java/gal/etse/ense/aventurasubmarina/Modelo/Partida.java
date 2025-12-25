@@ -105,20 +105,6 @@ public class Partida implements Serializable {
         return id;
     }
 
-    @Transient
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private final Map<String, LinkDto> links = new HashMap<>();
-
-    public record LinkDto(String href, String method) {}
-
-    public void addLink(String rel, String href, String method) {
-        links.put(rel, new LinkDto(href, method));
-    }
-
-    public Map<String, LinkDto> getLinks() {
-        return links;
-    }
-
     public Partida(String id){
         this.ttl = 24 * 60 * 60L;
         tablero=new Tablero();

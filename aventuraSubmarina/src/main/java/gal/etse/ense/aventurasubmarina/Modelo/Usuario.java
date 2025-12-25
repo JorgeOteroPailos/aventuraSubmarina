@@ -20,18 +20,6 @@ public class Usuario{
 
     private Set<Rol> roles;
 
-    // ===== HATEOAS =====
-    @Transient
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private final Map<String, LinkDto> links = new HashMap<>();
-
-    public void addLink(String rel, String href, String method) {
-        links.put(rel, new LinkDto(href, method));
-    }
-
-    public Map<String, Usuario.LinkDto> getLinks() {
-        return links;
-    }
 
     public record LinkDto(String href, String method) {}
 
