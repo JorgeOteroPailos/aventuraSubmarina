@@ -2,7 +2,7 @@
 **API REST + Cliente JavaFX para un juego multijugador por turnos**  
 
 > Proyecto desarrollado como parte de un trabajo académico para la asignatura de Enxeñaría de Servizos
-> El objetivo es implementar un sistema cliente-servidor completo para gestionar usuarios, autenticación y partidas de un juego llamado **Aventura Submarina**, siguiendo buenas prácticas de diseño (REST, seguridad por roles, tokens, y orientación a hipermedia con HATEOAS).
+> El objetivo es implementar un sistema cliente-servidor completo para gestionar usuarios, autenticación y partidas de un juego llamado **Aventura Submarina**, realizando la comunicación mediante una API REST.
 
 ---
 
@@ -55,7 +55,7 @@ El sistema se compone de:
 
 La arquitectura es **tricapas** y sigue el flujo:
 
-**Cliente (JavaFX) → Servidor (Spring Boot) → Persistencia (MongoDB)**
+**Cliente (JavaFX) → Servidor (Spring Boot) → Persistencia (MongoDB, Redis)**
 
 Esto permite desacoplar completamente:
 - la interfaz (cliente),
@@ -71,12 +71,10 @@ Esto permite desacoplar completamente:
 - Spring Web (API REST)
 - Spring Security (autorización por roles)
 - JWT (tokens de acceso)
-- Refresh tokens (renovación de sesión)
-- OpenAPI/Swagger (documentación y prueba de endpoints)
 
 **Persistencia**
 - MongoDB (documentos)
-- Redis (cache/TTL/timeouts)
+- Redis (tokens de refresco, partidas activas)
 
 **Frontend (Cliente)**
 - JavaFX
@@ -105,7 +103,7 @@ Esto permite desacoplar completamente:
   - iniciar
   - ejecutar acciones
   - abandonar
-- ✅ Enfoque HATEOAS (hipermedia): la API “sugiere” acciones posibles al cliente mediante enlaces.
+- ✅ Enfoque HATEOAS (cabeceras link): la API “sugiere” acciones posibles al cliente mediante enlaces.
 
 ---
 
@@ -114,41 +112,35 @@ Esto permite desacoplar completamente:
 El sistema implementa un esquema moderno de autenticación:
 
 1. **Login**: el usuario se autentica y recibe un **token de acceso (JWT)** para autorizar peticiones.
-2. **Refresh**: cuando el JWT caduca, se obtiene uno nuevo mediante un **refresh token** (normalmente gestionado en cookie HttpOnly o mecanismo equivalente).
+2. **Refresh**: cuando el JWT caduca, se obtiene uno nuevo mediante un **refresh token** (token opaco almacenado en una cookie).
 3. **Logout**: se invalidan tokens de forma explícita.
 
 ### Roles
 - `USER`: rol estándar para jugar (crear partidas, unirse, actuar, etc.).
-- `ADMIN`: rol reservado para tareas administrativas (si aplica).
+- `ADMIN`: rol reservado para tareas administrativas (de momento, solo listar todos los usuarios).
 
 ---
 
 ## 🗄️ Persistencia y datos
 
-El proyecto usa **MongoDB** como base de datos principal.
+El proyecto usa **MongoDB** como base de datos principal, para almacenar usuarios y partidas ya finalizadas.
 
-Colecciones típicas (orientativo según la implementación):
-- `usuarios`
-- `partidas`
-- relación usuario-partidas (si se modela separado)
-- tokens de refresco (si se almacenan server-side)
+Además, en **Redis** se almacenan objetos con un corto tiempo de vida o que esperan un acceso frecuente: los tokens de refresco y las partidas activas.
 
-Además, se integra **Redis** para necesidades relacionadas con expiración/timeouts/caching (especialmente útil para tokens o estados transitorios).
+El proyecto está pensado para ejecutar MongoDB en un servidor web y Redis en un contenedor local, pero el diseño modular permitiría cambiarlo muy fácilmente solo mediante archivos de configuración.
 
 ---
 
 ## 🔗 HATEOAS / Hipermedia
 
-El proyecto incorpora el enfoque **HATEOAS** (inspirado en HAL), es decir:
+El proyecto incorpora el enfoque **HATEOAS** mediante cabeceras link, es decir:
 
 > El servidor no solo devuelve datos, sino también **las acciones disponibles** para el cliente en ese momento.
 
 Ejemplo conceptual:
-- Si la partida **no está empezada**, el servidor puede indicar un enlace `start`.
-- Si el usuario está dentro, puede indicar un enlace `leave`.
-- Siempre puede indicar `self` (autorreferencia al recurso).
+- Si la partida **no está empezada**, el servidor indica un enlace `start`.
+- Si el usuario está dentro, indica un enlace `leave`.
 
-> Nota: según la implementación, estos enlaces pueden devolverse en el cuerpo (estilo HAL) o en cabeceras HTTP (por ejemplo, cabecera `Link`). En ambos casos, el objetivo es el mismo: guiar al cliente sin que “adivine” URLs.
 
 ---
 
@@ -217,19 +209,13 @@ A continuación se listan los endpoints principales por controlador (resumen de 
 ### Requisitos previos
 
 - Java (recomendado: 17+)
-- Maven o Gradle (según build del proyecto)
-- MongoDB en local **o** MongoDB Atlas (según configuración)
-- Redis en local (si se usa en la ejecución)
-- (Opcional) Docker / Docker Compose si lo usas para levantar servicios
+- Gradle
+- MongoDB
+- Redis 
 
 ---
 
 ## ⚙️ Configuración
 
-La configuración se realiza en `application.properties` (o `application.yml`).
+La configuración se realiza en `application.properties`
 
-### MongoDB en local (recomendado para desarrollo)
-
-Ejemplo:
-```properties
-spring.data.mongodb.uri=mongodb://localhost:27017/aventuraSubmarinaDB
